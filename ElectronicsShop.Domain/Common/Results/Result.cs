@@ -13,7 +13,7 @@ public static class Result
     public static Updated Updated => default;
 }
 
-public sealed class Result<TValue> : IResult
+public sealed class Result<TValue> : IResult<TValue>
 {
     private readonly TValue? _value = default;
 

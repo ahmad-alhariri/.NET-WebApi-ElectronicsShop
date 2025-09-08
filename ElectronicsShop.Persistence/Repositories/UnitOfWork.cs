@@ -15,7 +15,7 @@ public class UnitOfWork:IUnitOfWork
 
     public Task<IDbContextTransaction> BeginTransactionAsync() => _dbContext.Database.BeginTransactionAsync();
     
-    public Task CommitAsync() => _dbContext.Database.CommitTransactionAsync();
+    public Task CommitAsync(CancellationToken cancellationToken = default) => _dbContext.Database.CommitTransactionAsync(cancellationToken);
     
     public Task RollbackAsync() => _dbContext.Database.RollbackTransactionAsync();
     
