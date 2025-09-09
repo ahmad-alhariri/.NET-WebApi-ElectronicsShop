@@ -7,11 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Features\Categories\Queries\GetCategories\" />
-      <Folder Include="Features\Categories\Queries\GetCategoryById\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\ElectronicsShop.Domain\ElectronicsShop.Domain.csproj" />
     </ItemGroup>
 

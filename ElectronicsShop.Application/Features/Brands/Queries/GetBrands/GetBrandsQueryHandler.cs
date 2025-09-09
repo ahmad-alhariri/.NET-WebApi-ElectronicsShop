@@ -23,7 +23,7 @@ public class GetBrandsQueryHandler:ResponseHandler,IRequestHandler<GetBrandsQuer
         
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {
-            var normalized = request.SearchTerm?.Trim().ToLower();
+            var normalized = request.SearchTerm.Trim().ToLower();
             query = query.Where(b => b.Name.ToLower().Contains(normalized));
         }
 
