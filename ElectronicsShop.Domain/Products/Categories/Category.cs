@@ -43,16 +43,12 @@ public sealed class Category : BaseAuditableEntity
         return new Category(name.Trim(), description, imageUrl);
     }
 
-    public Result<Updated> UpdateDetails(string newName, string? newDescription, string newImageUrl)
+    public Result<Updated> UpdateDetails(string? newName, string? newDescription, string? newImageUrl)
     {
-        if (string.IsNullOrWhiteSpace(newName))
-        {
-            return CategoryErrors.NameRequired;
-        }
-
-        Name = newName.Trim();
-        Description = newDescription?.Trim();
-        ImageUrl = newImageUrl?.Trim() ?? string.Empty;
+        
+        Name = string.IsNullOrWhiteSpace(newName) ? Name : newName.Trim();
+        Description = string.IsNullOrWhiteSpace(newDescription) ? Description : newDescription?.Trim();
+        ImageUrl = string.IsNullOrWhiteSpace(newImageUrl) ? ImageUrl : newImageUrl.Trim();
 
         return Result.Updated;
     }

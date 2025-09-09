@@ -29,8 +29,7 @@ public static class ApiRoutes
         public const string GetById = Base + Resource + "/{id}";
 
         public const string Create = Base + Resource;
-        public const string Update = Base + Resource;
-        // public const string Update = Base + Resource + "/{id}";
+        public const string Update = Base + Resource + "/{id}";
         public const string Delete = Base + Resource + "/{id}";
     }
 

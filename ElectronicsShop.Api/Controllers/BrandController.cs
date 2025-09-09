@@ -35,8 +35,11 @@ public class BrandController:AppControllerBase
     }
     
     [HttpPut(ApiRoutes.Brands.Update)]
-    public async Task<IActionResult> UpdateBrand( [FromBody] UpdateBrandCommand command)
+    public async Task<IActionResult> UpdateBrand(int id, [FromBody] UpdateBrandCommand command)
     {
+        if (id != command.Id)
+            return BadRequest("Route Id and command Id do not match");
+        
         var result = await Mediator.Send(command);
         return result.ToActionResult();
     }
