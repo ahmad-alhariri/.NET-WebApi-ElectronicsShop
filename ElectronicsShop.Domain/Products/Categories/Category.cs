@@ -35,6 +35,10 @@ public sealed class Category : BaseAuditableEntity
         {
             return CategoryErrors.NameRequired;
         }
+        if (string.IsNullOrWhiteSpace(imageUrl))
+        {
+            return CategoryErrors.NameRequired;
+        }
 
         return new Category(name.Trim(), description, imageUrl);
     }
