@@ -7,8 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Features\Categories\Commands\DeleteCategory\" />
-      <Folder Include="Features\Categories\Commands\UpdateCategory\" />
       <Folder Include="Features\Categories\Queries\GetCategories\" />
       <Folder Include="Features\Categories\Queries\GetCategoryById\" />
     </ItemGroup>

@@ -41,7 +41,8 @@ public class CreateCategoryCommandHandler:ResponseHandler, IRequestHandler<Creat
         {
             return BadRequest<int>(newCategory.Errors.FirstOrDefault().Description);
         }
-        
+
+        await _categoryRepository.AddAsync(newCategory.Value);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Success(newCategory.Value.Id, "Category created successfully");
