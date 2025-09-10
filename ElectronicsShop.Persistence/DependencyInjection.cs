@@ -56,6 +56,7 @@ public static class DependencyInjection
             .AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork))
             .AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
             .AddScoped<IBrandRepository,BrandRepository>()
-            .AddScoped<ICategoryRepository,CategoryRepository>();
+            .AddScoped<ICategoryRepository,CategoryRepository>()
+            .AddScoped<IProductRepository,ProductRepository>();
     }
 }
