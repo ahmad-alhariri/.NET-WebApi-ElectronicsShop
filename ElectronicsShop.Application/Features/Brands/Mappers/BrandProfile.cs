@@ -8,6 +8,7 @@ public partial class BrandProfile : Profile
 {
     public BrandProfile()
     {
-        CreateMap<Brand, BrandResponse>();
+        CreateMap<Brand, BrandResponse>().ForMember(dest => dest.ProductCount,
+            opt => opt.MapFrom(src => src.Products.Count()));;
     }
 }
