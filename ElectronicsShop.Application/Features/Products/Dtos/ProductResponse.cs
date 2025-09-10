@@ -1,22 +1,31 @@
 namespace ElectronicsShop.Application.Features.Products.Dtos;
 
-public sealed record ProductResponse
+public sealed class ProductResponse
 {
     public int Id { get; init; }
 
     public string Name { get; init; }
 
     public string Description { get; init; }
-
-    public decimal Price { get; init; }
+    
+    public string Sku { get; init; }
+    
+    public decimal PriceAmount { get; init; }
+    
+    public string PriceCurrency { get; init; }
 
     public int StockQuantity { get; init; }
-
     public string CategoryName { get; init; }
+    
+    public string BrandName { get; init; }
+    
+    public bool IsActive { get; init; }
+    
+    public List<SpecificationDto> Specifications { get; set; } = new();
+    
+    public List<string> ImageUrls { get; set; } = new();
 
-    public List<string> ImagesUrl { get; init; }
+    public DateTime CreatedDate { get; init; }
 
-    public DateTime CreatedAt { get; init; }
-
-    public DateTime UpdatedAt { get; init; }
+    public DateTime UpdatedDate { get; init; }
 }

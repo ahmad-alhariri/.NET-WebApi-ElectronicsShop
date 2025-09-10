@@ -13,5 +13,15 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
     {
         _products = context.Set<Product>();
     }
+
+    public async Task<Product?> GetByIdWithIncludesAsync(int productId)
+    {
+        return await _products
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
+            .Include(p => p.Images)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Id == productId);
+    }
     
 }
