@@ -19,7 +19,6 @@
 
     <ItemGroup>
       <Folder Include="Features\Products\Commands\DeleteProduct\" />
-      <Folder Include="Features\Products\Commands\UpdateProduct\" />
     </ItemGroup>
 
 </Project>

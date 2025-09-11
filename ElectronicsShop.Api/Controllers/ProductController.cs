@@ -2,6 +2,7 @@ using ElectronicsShop.Api.BaseController;
 using ElectronicsShop.Api.Extensions;
 using ElectronicsShop.Api.MetaData;
 using ElectronicsShop.Application.Features.Products.Commands.CreateProduct;
+using ElectronicsShop.Application.Features.Products.Commands.UpdateProduct;
 using ElectronicsShop.Application.Features.Products.Queries.GetProductById;
 using ElectronicsShop.Application.Features.Products.Queries.GetProducts;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +30,16 @@ public class ProductController : AppControllerBase
     public async Task<IActionResult> GetProductById([FromRoute] int id)
     {
         var result = await Mediator.Send(new GetProductByIdQuery(id));
+        return result.ToActionResult();
+    }
+    
+    [HttpPut(ApiRoutes.Products.Update)]
+    public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductCommand command)
+    {
+        if (id != command.Id)
+            return BadRequest("Route Id and command Id do not match");
+        
+        var result = await Mediator.Send(command);
         return result.ToActionResult();
     }
     

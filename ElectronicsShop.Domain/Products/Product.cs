@@ -232,6 +232,12 @@ public sealed class Product : BaseAuditableEntity
         return Result.Success;
     }
     
+    public Result<Success> RemoveAllSpecification()
+    {
+        _specifications.Clear();
+        return Result.Success;
+    }
+    
     // Business rules
     public bool IsInStock() => IsActive && StockQuantity > 0;
     public bool IsLowStock() => IsActive && StockQuantity is > 0 and <= 10;

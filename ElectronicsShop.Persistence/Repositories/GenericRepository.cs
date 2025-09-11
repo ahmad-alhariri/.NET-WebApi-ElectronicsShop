@@ -18,7 +18,7 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
 
     public async Task<TEntity?> GetByIdAsync(int id)
     {
-        return await _dbSet.FindAsync(id);
+        return await _dbSet.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
     }
 
     public IQueryable<TEntity> GetAll()

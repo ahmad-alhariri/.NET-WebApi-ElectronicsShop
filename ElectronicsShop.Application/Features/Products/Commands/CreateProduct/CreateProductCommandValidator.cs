@@ -12,7 +12,7 @@ public class CreateProductCommandValidator:AbstractValidator<CreateProductComman
 
         RuleFor(x => x.Description)
             .NotEmpty().WithMessage("Product description is required.")
-            .MaximumLength(2000).WithMessage("Product description must not exceed 2000 characters.");
+            .MaximumLength(1000).WithMessage("Product description must not exceed 2000 characters.");
 
         RuleFor(x => x.PriceAmount)
             .GreaterThan(0).WithMessage("Price must be greater than zero.");
