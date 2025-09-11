@@ -38,11 +38,14 @@ public static class ApiRoutes
         private const string Resource = "/products";
         public const string GetAll = Base + Resource;
         public const string GetById = Base + Resource + "/{id}";
-        public const string Search = Base + Resource + "/search";
         public const string Create = Base + Resource;
         public const string Update = Base + Resource + "/{id}";
         public const string Delete = Base + Resource + "/{id}";
-        public const string Paginated = Base + Resource + "/paginated";
+        public const string AddImages = Base + Resource + "/{id}/images";
+        public const string RemoveImage = Base + Resource + "/{id}/images/{imageId}";
+        public const string RemoveImages = Base + Resource + "/{id}/images";
+        public const string SetPrimaryImage = Base + Resource + "/{id}/images/{imageId}/set-primary";
+
     }
 
     public static class Users

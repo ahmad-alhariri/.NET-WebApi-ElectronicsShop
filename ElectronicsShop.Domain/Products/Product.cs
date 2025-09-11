@@ -203,6 +203,24 @@ public sealed class Product : BaseAuditableEntity
 
         return Result.Success;
     }
+    
+    public Result<Success> RemoveImage(int productImageId)
+    {
+        var imageToRemove = _images.FirstOrDefault(img => img.Id == productImageId);
+        if (imageToRemove is null)
+            return ProductErrors.ImageNotFount;
+
+        bool wasPrimary = imageToRemove.IsPrimary;
+        _images.Remove(imageToRemove);
+
+        // If the removed image was primary, set a new primary if any images remain
+        if (wasPrimary && _images.Any())
+        {
+            _images[0].SetAsPrimary();
+        }
+
+        return Result.Success;
+    }
 
     public Result<Success> SetPrimaryImage(int productImageId)
     {
