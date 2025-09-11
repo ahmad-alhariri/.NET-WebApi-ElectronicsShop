@@ -23,5 +23,11 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == productId);
     }
-    
+
+    public async Task<Product?> GetProductByIdWithImages(int id)
+    {
+        return await _products
+            .Include(p => p.Images)
+            .FirstOrDefaultAsync(p => p.Id == id);
+    }
 }
