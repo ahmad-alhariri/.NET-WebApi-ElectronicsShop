@@ -23,7 +23,8 @@ public sealed class ProductResponse
     
     public List<SpecificationDto> Specifications { get; set; } = new();
     
-    public List<string> ImageUrls { get; set; } = new();
+    // This property is now a list of structured ImageDto objects
+    public List<ImageDto> Images { get; init; }
 
     public DateTime CreatedDate { get; init; }
 
