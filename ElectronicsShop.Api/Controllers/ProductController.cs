@@ -97,4 +97,13 @@ public class ProductController : AppControllerBase
         var result = await Mediator.Send(command);
         return result.ToActionResult();
     }
+    [HttpPatch(ApiRoutes.Products.UpdatePrice)]
+    public async Task<IActionResult> UpdateProductPrice(int id, [FromBody] UpdatePriceCommand command)
+    {
+        if (id != command.ProductId)
+            return BadRequest("Route Id and command ProductId do not match");
+        
+        var result = await Mediator.Send(command);
+        return result.ToActionResult();
+    }
 }
