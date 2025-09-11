@@ -45,6 +45,7 @@ public static class ApiRoutes
         public const string RemoveImage = Base + Resource + "/{id}/images/{imageId}";
         public const string RemoveImages = Base + Resource + "/{id}/images";
         public const string SetPrimaryImage = Base + Resource + "/{id}/images/{imageId}/set-primary";
+        public const string UpdateStock = Base + Resource + "/{id}/update-stock";
 
     }
 
