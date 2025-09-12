@@ -48,6 +48,7 @@ public static class ApiRoutes
         public const string SetPrimaryImage = Base + Resource + "/{id}/images/{imageId}/set-primary";
         public const string UpdateStock = Base + Resource + "/{id}/update-stock";
         public const string UpdatePrice = Base + Resource + "/{id}/update-price";
+        public const string Featured = Base + Resource + "/{id}/featured";
         public const string AddSpecifications = Base + Resource + "/{id}/specifications";
         public const string RemoveSpecification = Base + Resource + "/{id}/specifications/{key}";
         public const string ClearSpecifications = Base + Resource + "/{id}/specifications";

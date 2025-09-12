@@ -14,6 +14,9 @@ public sealed class Product : BaseAuditableEntity
     public int StockQuantity { get; private set; }
     public string Sku { get; private set; }
     public bool IsActive { get; private set; }
+
+    public bool IsFeatured { get; private set; }
+    
     
     // Value objects
     public Money Price { get; private set; }
@@ -32,7 +35,10 @@ public sealed class Product : BaseAuditableEntity
     private readonly List<ProductImage> _images = new();
     public IEnumerable<ProductImage> Images => _images.AsReadOnly();
 
-    private Product() { } // EF Core
+
+    #region Constructors
+
+    private Product() { }
 
     private Product(string name, string description, Money price, int stockQuantity,
         string sku, int categoryId, int brandId, Dictionary<string, string>? initialSpecifications = null)
@@ -52,6 +58,10 @@ public sealed class Product : BaseAuditableEntity
         }
     }
 
+    #endregion
+
+
+    #region Factory Method and Update Details
 
     public static Result<Product> Create(string name, string description, Money price,
         int stockQuantity, string sku, int categoryId, int brandId)
@@ -92,8 +102,7 @@ public sealed class Product : BaseAuditableEntity
 
         return product;
     }
-
-
+    
     public Result<Updated> UpdateDetails(string name, string description, Money price,
         string sku, int categoryId, int brandId)
     {
@@ -125,69 +134,11 @@ public sealed class Product : BaseAuditableEntity
         return Result.Updated;
     }
 
-    public Result<Updated> UpdatePrice(Money newPrice)
-    {
-        if (newPrice.Amount <= 0)
-            return ProductErrors.PriceGreaterThanZero;
+    #endregion
 
-        if (Price != newPrice)
-        {
-            var oldPrice = Price;
-            Price = newPrice;
-            AddDomainEvent(new ProductPriceChangedEvent(Id, newPrice, oldPrice));
-        }
-
-        return Result.Updated;
-    }
-
-    public Result<Updated> UpdateStock(int quantity)
-    {
-        if (quantity < 0)
-            return ProductErrors.StockQuantityGreaterThanZero;
-
-        var oldStock = StockQuantity;
-        StockQuantity = quantity;
-
-        AddDomainEvent(new ProductStockChangedEvent(Id, oldStock, quantity));
-
-        if (quantity <= 10 && quantity > 0)
-            AddDomainEvent(new ProductLowStockEvent(Id, quantity));
-
-        if (quantity == 0)
-            AddDomainEvent(new ProductOutOfStockEvent(Id));
-
-        return Result.Updated;
-    }
-
-    public Result<Updated> AdjustStock(int adjustment)
-    {
-        var newQuantity = StockQuantity + adjustment;
-        if (newQuantity < 0)
-            return ProductErrors.InsufficientStock;
-
-        return UpdateStock(newQuantity);
-    }
     
-    public Result<Updated> Activate()
-    {
-        if (IsActive) return Result.Updated;
 
-        IsActive = true;
-        AddDomainEvent(new ProductActivatedEvent(Id));
-
-        return Result.Updated;
-    }
-
-    public Result<Updated> Deactivate()
-    {
-        if (!IsActive) return Result.Updated;
-
-        IsActive = false;
-        AddDomainEvent(new ProductDeactivatedEvent(Id));
-
-        return Result.Updated;
-    }
-
+    #region Business Methods
     public Result<Success> AddImage(string url)
     {
         if (string.IsNullOrWhiteSpace(url))
@@ -235,6 +186,48 @@ public sealed class Product : BaseAuditableEntity
 
         return Result.Success;
     }
+    public Result<Updated> UpdatePrice(Money newPrice)
+    {
+        if (newPrice.Amount <= 0)
+            return ProductErrors.PriceGreaterThanZero;
+
+        if (Price != newPrice)
+        {
+            var oldPrice = Price;
+            Price = newPrice;
+            AddDomainEvent(new ProductPriceChangedEvent(Id, newPrice, oldPrice));
+        }
+
+        return Result.Updated;
+    }
+
+    public Result<Updated> UpdateStock(int quantity)
+    {
+        if (quantity < 0)
+            return ProductErrors.StockQuantityGreaterThanZero;
+
+        var oldStock = StockQuantity;
+        StockQuantity = quantity;
+
+        AddDomainEvent(new ProductStockChangedEvent(Id, oldStock, quantity));
+
+        if (quantity <= 10 && quantity > 0)
+            AddDomainEvent(new ProductLowStockEvent(Id, quantity));
+
+        if (quantity == 0)
+            AddDomainEvent(new ProductOutOfStockEvent(Id));
+
+        return Result.Updated;
+    }
+
+    public Result<Updated> AdjustStock(int adjustment)
+    {
+        var newQuantity = StockQuantity + adjustment;
+        if (newQuantity < 0)
+            return ProductErrors.InsufficientStock;
+
+        return UpdateStock(newQuantity);
+    }
     public Result<Success> SetSpecification(string key, string value)
     {
         if (string.IsNullOrWhiteSpace(key))
@@ -255,8 +248,36 @@ public sealed class Product : BaseAuditableEntity
         _specifications.Clear();
         return Result.Success;
     }
+
+    public void MarkAsFeatured() => IsFeatured = true;
+    public void UnmarkAsFeatured() => IsFeatured = false;
+    
+    public Result<Updated> Activate()
+    {
+        if (IsActive) return Result.Updated;
+
+        IsActive = true;
+        AddDomainEvent(new ProductActivatedEvent(Id));
+
+        return Result.Updated;
+    }
+
+    public Result<Updated> Deactivate()
+    {
+        if (!IsActive) return Result.Updated;
+
+        IsActive = false;
+        AddDomainEvent(new ProductDeactivatedEvent(Id));
+
+        return Result.Updated;
+    }
+    #endregion
+
+    
     
     // Business rules
     public bool IsInStock() => IsActive && StockQuantity > 0;
     public bool IsLowStock() => IsActive && StockQuantity is > 0 and <= 10;
+    
+    
 }

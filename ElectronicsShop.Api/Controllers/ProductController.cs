@@ -114,6 +114,16 @@ public class ProductController : AppControllerBase
         return result.ToActionResult();
     }
     
+    [HttpPatch(ApiRoutes.Products.Featured)]
+    public async Task<IActionResult> SetFeaturedProduct(int id, [FromBody] SetProductFeaturedStatusCommand command)
+    {
+        if (id != command.ProductId)
+            return BadRequest("Route Id and command ProductId do not match");
+        
+        var result = await Mediator.Send(command);
+        return result.ToActionResult();
+    }
+    
     [HttpPost(ApiRoutes.Products.AddSpecifications)]
     public async Task<IActionResult> AddProductSpecifications(int id, [FromBody] AddOrUpdateSpecificationsCommand command)
     {
