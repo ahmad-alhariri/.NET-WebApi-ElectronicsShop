@@ -48,6 +48,24 @@ public class ProductController : AppControllerBase
         return result.ToActionResult();
     }
     
+    [HttpGet(ApiRoutes.Products.FeaturedProducts)]
+    public async Task<IActionResult> GetFeaturedProducts(
+        [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    {
+        var query = new GetFeaturedProductsQuery(page, pageSize);
+        var result = await Mediator.Send(query);
+        return Ok(result);
+    }
+
+    [HttpGet(ApiRoutes.Products.NewProducts)]
+    public async Task<IActionResult> GetNewProducts(
+        [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    {
+        var query = new GetNewProductsQuery(page, pageSize);
+        var result = await Mediator.Send(query);
+        return Ok(result);
+    }
+    
     [HttpGet(ApiRoutes.Products.GetById)]
     public async Task<IActionResult> GetProductById([FromRoute] int id)
     {
