@@ -106,4 +106,31 @@ public class ProductController : AppControllerBase
         var result = await Mediator.Send(command);
         return result.ToActionResult();
     }
+    
+    [HttpPost(ApiRoutes.Products.AddSpecifications)]
+    public async Task<IActionResult> AddProductSpecifications(int id, [FromBody] AddOrUpdateSpecificationsCommand command)
+    {
+        if(id != command.ProductId)
+            return BadRequest("Route Id and command ProductId do not match");
+        
+        var result = await Mediator.Send(command);
+        return result.ToActionResult();
+    }
+    
+    [HttpDelete(ApiRoutes.Products.RemoveSpecification)]
+    public async Task<IActionResult> RemoveProductSpecification(int id, string key)
+    {
+        var command = new RemoveSpecificationCommand(id, key);
+        var result = await Mediator.Send(command);
+        return result.ToActionResult();
+    }
+    
+    [HttpDelete(ApiRoutes.Products.ClearSpecifications)]
+    public async Task<IActionResult> ClearAllProductSpecifications(int id)
+    {
+        var command = new ClearSpecificationsCommand(id);
+        var result = await Mediator.Send(command);
+        return result.ToActionResult();
+    }
+
 }
