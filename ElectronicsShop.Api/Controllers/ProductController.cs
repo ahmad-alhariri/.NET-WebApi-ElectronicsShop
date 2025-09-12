@@ -30,6 +30,13 @@ public class ProductController : AppControllerBase
         return result.ToActionResult();
     }
     
+    [HttpGet(ApiRoutes.Products.Search)]
+    public async Task<IActionResult> SearchProducts([FromQuery] SearchProductsQuery query)
+    {
+        var result = await Mediator.Send(query);
+        return result.ToActionResult();
+    }
+    
     [HttpGet(ApiRoutes.Products.GetById)]
     public async Task<IActionResult> GetProductById([FromRoute] int id)
     {

@@ -1,3 +1,4 @@
+using ElectronicsShop.Application.Features.Products.Dtos;
 using ElectronicsShop.Application.Interfaces.Repositories;
 using ElectronicsShop.Domain.Products;
 using ElectronicsShop.Persistence.DataContext;
@@ -29,5 +30,18 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
         return await _products
             .Include(p => p.Images)
             .FirstOrDefaultAsync(p => p.Id == id);
+    }
+
+    public async Task<IReadOnlyList<ProductSearchDto>?> SearchProducts(string term, int maxResults, CancellationToken cancellationToken)
+    {
+        var products = await _products
+            .AsNoTracking()
+            .Where(p => p.IsActive && p.Name.ToLower().Contains(term))
+            .OrderBy(p => p.Name) // or popularity, sales, etc.
+            .Take(maxResults)
+            .Select(p => new ProductSearchDto(p.Id, p.Name))
+            .ToListAsync(cancellationToken);
+
+        return products;
     }
 }

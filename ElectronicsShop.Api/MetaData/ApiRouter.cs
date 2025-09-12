@@ -38,6 +38,7 @@ public static class ApiRoutes
         private const string Resource = "/products";
         public const string GetAll = Base + Resource;
         public const string GetById = Base + Resource + "/{id}";
+        public const string Search = Base + Resource + "/search";
         public const string Create = Base + Resource;
         public const string Update = Base + Resource + "/{id}";
         public const string Delete = Base + Resource + "/{id}";
