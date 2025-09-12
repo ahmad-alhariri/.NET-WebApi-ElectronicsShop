@@ -13,4 +13,11 @@ public class BrandRepository : GenericRepository<Brand>, IBrandRepository
     {
         _brands = context.Set<Brand>();
     }
+
+    public async Task<Brand?> GetBrandWithProductsAsync(int brandId)
+    {
+        return await _brands.AsNoTracking()
+            .Include(b => b.Products)
+            .FirstOrDefaultAsync(b => b.Id == brandId);
+    }
 }

@@ -6,6 +6,7 @@ using ElectronicsShop.Application.Features.Categories.Commands.DeleteCategory;
 using ElectronicsShop.Application.Features.Categories.Commands.UpdateCategory;
 using ElectronicsShop.Application.Features.Categories.Queries.GetCategories;
 using ElectronicsShop.Application.Features.Categories.Queries.GetCategoryById;
+using ElectronicsShop.Application.Features.Products.Queries.GetProducts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ElectronicsShop.Api.Controllers;
@@ -48,6 +49,14 @@ public class CategoryController:AppControllerBase
     public async Task<IActionResult> DeleteCategory([FromRoute] int id)
     {
         var result = await Mediator.Send(new DeleteCategoryCommand(id));
+        return result.ToActionResult();
+    }
+    
+    [HttpGet(ApiRoutes.Categories.ProductsByCategory)]
+    public async Task<IActionResult> GetProductsByCategory([FromRoute] int id, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    {
+        var query = new GetProductsQuery(pageNumber, pageSize, BrandId: id);
+        var result = await Mediator.Send(query);
         return result.ToActionResult();
     }
 }
