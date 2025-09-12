@@ -41,6 +41,7 @@ public static class ApiRoutes
         public const string GetAll = Base + Resource;
         public const string GetById = Base + Resource + "/{id}";
         public const string Search = Base + Resource + "/search";
+        public const string LowStock = Base + Resource + "/low-stock";
         
         public const string Create = Base + Resource;
         public const string Update = Base + Resource + "/{id}";

@@ -37,6 +37,17 @@ public class ProductController : AppControllerBase
         return result.ToActionResult();
     }
     
+    [HttpGet(ApiRoutes.Products.LowStock)]
+    public async Task<IActionResult> GetLowStockProducts(
+        [FromQuery] int threshold = 10,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20)
+    {
+        var query = new GetLowStockProductsQuery(threshold, page, pageSize);
+        var result = await Mediator.Send(query);
+        return result.ToActionResult();
+    }
+    
     [HttpGet(ApiRoutes.Products.GetById)]
     public async Task<IActionResult> GetProductById([FromRoute] int id)
     {
