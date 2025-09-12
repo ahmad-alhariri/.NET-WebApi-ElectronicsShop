@@ -47,6 +47,18 @@ public class GetProductsQueryHandler:ResponseHandler, IRequestHandler<GetProduct
             productsQuery = productsQuery.Where(p => p.Price.Amount <= request.MaxPrice.Value);
         }
         
+        if (request.IsOutOfStock.HasValue)
+        {
+            if (request.IsOutOfStock.Value)
+            {
+                productsQuery = productsQuery.Where(p => p.StockQuantity == 0);
+            }
+            else
+            {
+                productsQuery = productsQuery.Where(p => p.StockQuantity > 0);
+            }
+        }
+        
         // == SEARCHING ==
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {

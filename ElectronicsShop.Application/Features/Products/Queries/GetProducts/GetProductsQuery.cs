@@ -12,6 +12,7 @@ public sealed record GetProductsQuery(
     int? BrandId = null,
     decimal? MinPrice = null,
     decimal? MaxPrice = null,
+    bool? IsOutOfStock = null,
     string SortColumn = "createdAt",
     string SortDirection = "desc"
 ) : IRequest<GenericResponse<List<ProductResponse>>>;

@@ -20,6 +20,7 @@ public sealed class ProductResponse
     public string BrandName { get; init; }
     
     public bool IsActive { get; init; }
+    public bool IsInStock => StockQuantity > 0;
     
     public List<SpecificationDto> Specifications { get; set; } = new();
     
