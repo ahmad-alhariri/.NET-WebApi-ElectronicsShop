@@ -44,6 +44,7 @@ public static class ApiRoutes
         public const string LowStock = Base + Resource + "/low-stock";
         public const string FeaturedProducts = Base + Resource + "/featured";
         public const string NewProducts = Base + Resource + "/new";
+        public const string Statistics = Base + Resource + "/statistics";
         
         public const string Create = Base + Resource;
         public const string Update = Base + Resource + "/{id}";

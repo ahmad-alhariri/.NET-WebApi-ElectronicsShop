@@ -54,7 +54,7 @@ public class ProductController : AppControllerBase
     {
         var query = new GetFeaturedProductsQuery(page, pageSize);
         var result = await Mediator.Send(query);
-        return Ok(result);
+        return result.ToActionResult();
     }
 
     [HttpGet(ApiRoutes.Products.NewProducts)]
@@ -63,13 +63,21 @@ public class ProductController : AppControllerBase
     {
         var query = new GetNewProductsQuery(page, pageSize);
         var result = await Mediator.Send(query);
-        return Ok(result);
+        return result.ToActionResult();
     }
+    
     
     [HttpGet(ApiRoutes.Products.GetById)]
     public async Task<IActionResult> GetProductById([FromRoute] int id)
     {
         var result = await Mediator.Send(new GetProductByIdQuery(id));
+        return result.ToActionResult();
+    }
+    
+    [HttpGet(ApiRoutes.Products.Statistics)]
+    public async Task<IActionResult> GetStatistics()
+    {
+        var result = await Mediator.Send(new GetProductStatisticsQuery());
         return result.ToActionResult();
     }
     

@@ -83,11 +83,11 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         return await _dbSet.AnyAsync(predicate).ConfigureAwait(false);
     }
 
-    public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null)
+    public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default)
     {
         return predicate == null
-            ? await _dbSet.CountAsync().ConfigureAwait(false)
-            : await _dbSet.CountAsync(predicate).ConfigureAwait(false);
+            ? await _dbSet.CountAsync(cancellationToken).ConfigureAwait(false)
+            : await _dbSet.CountAsync(predicate,cancellationToken).ConfigureAwait(false);
     }
 
 
