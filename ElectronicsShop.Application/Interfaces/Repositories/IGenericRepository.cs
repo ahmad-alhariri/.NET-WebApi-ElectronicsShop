@@ -9,7 +9,7 @@ public interface IGenericRepository<TEntity> where TEntity : class
     IEnumerable<TEntity> GetAllAsNoTracking();
     Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate);
     
-    Task AddAsync(TEntity entity);
+    Task AddAsync(TEntity entity, CancellationToken cancellationToken = default);
     Task AddRangeAsync(List<TEntity> entities);
 
     void Update(TEntity entity);

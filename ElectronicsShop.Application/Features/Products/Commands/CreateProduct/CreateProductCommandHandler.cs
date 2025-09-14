@@ -85,7 +85,7 @@ public class CreateProductCommandHandler: ResponseHandler, IRequestHandler<Creat
         }
 
         // Persist
-        await _productRepository.AddAsync(product);
+        await _productRepository.AddAsync(product, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Success(product.Id, "Product created successfully");

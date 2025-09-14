@@ -15,6 +15,12 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
         _products = context.Set<Product>();
     }
 
+    public async Task<Product?> GetBySkuAsync(string sku, CancellationToken cancellationToken = default)
+    {
+        return await _products
+            .FirstOrDefaultAsync(p => p.Sku == sku, cancellationToken);
+    }
+
     public async Task<Product?> GetByIdWithIncludesAsync(int productId)
     {
         return await _products

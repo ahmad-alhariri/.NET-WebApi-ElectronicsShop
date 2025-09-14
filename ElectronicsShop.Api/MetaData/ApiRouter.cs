@@ -45,6 +45,8 @@ public static class ApiRoutes
         public const string FeaturedProducts = Base + Resource + "/featured";
         public const string NewProducts = Base + Resource + "/new";
         public const string Statistics = Base + Resource + "/statistics";
+        public const string Export = Base + Resource + "/export";
+        public const string BulkImport = Base + Resource + "/import";
         
         public const string Create = Base + Resource;
         public const string Update = Base + Resource + "/{id}";

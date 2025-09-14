@@ -5,8 +5,10 @@ using ElectronicsShop.Application.Features.Products.Commands.CreateProduct;
 using ElectronicsShop.Application.Features.Products.Commands.CreateProduct.Images;
 using ElectronicsShop.Application.Features.Products.Commands.DeleteProduct;
 using ElectronicsShop.Application.Features.Products.Commands.DeleteProduct.DeleteImage;
+using ElectronicsShop.Application.Features.Products.Commands.ImportProducts;
 using ElectronicsShop.Application.Features.Products.Commands.UpdateProduct;
 using ElectronicsShop.Application.Features.Products.Commands.UpdateProduct.UpdatePrimaryImage;
+using ElectronicsShop.Application.Features.Products.Queries.ExportProducts;
 using ElectronicsShop.Application.Features.Products.Queries.GetProductById;
 using ElectronicsShop.Application.Features.Products.Queries.GetProducts;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +23,16 @@ public class ProductController : AppControllerBase
     {
         var result = await Mediator.Send(command);
         return result.ToActionResult();
+    }
+    
+    [HttpPost(ApiRoutes.Products.BulkImport)]
+    public async Task<IActionResult> ImportProducts(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest("File is required");
+
+        var results = await Mediator.Send(new ImportProductsCommand(file));
+        return Ok(results);
     }
     
     [HttpGet(ApiRoutes.Products.GetAll)]
@@ -79,6 +91,17 @@ public class ProductController : AppControllerBase
     {
         var result = await Mediator.Send(new GetProductStatisticsQuery());
         return result.ToActionResult();
+    }
+    
+    [HttpGet(ApiRoutes.Products.Export)]
+    public async Task<IActionResult> Export(CancellationToken cancellationToken)
+    {
+        var fileBytes = await Mediator.Send(new ExportProductsQuery(), cancellationToken);
+
+        return File(
+            fileBytes,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            $"products_export_{DateTime.UtcNow:yyyyMMdd}.xlsx");
     }
     
     [HttpPut(ApiRoutes.Products.Update)]

@@ -32,7 +32,7 @@ public class CreateBrandCommandHandler:ResponseHandler,IRequestHandler<CreateBra
         }
         
         // add brand
-        await _brandRepository.AddAsync(brand.Value);
+        await _brandRepository.AddAsync(brand.Value, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Success(brand.Value.Id, "Brand Created Successfully");

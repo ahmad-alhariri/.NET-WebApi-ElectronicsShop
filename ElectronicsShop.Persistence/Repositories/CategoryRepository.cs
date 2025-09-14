@@ -16,4 +16,9 @@ public class CategoryRepository : GenericRepository<Category>, ICategoryReposito
     }
 
 
+    public async Task<Category?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+    {
+        return await _categories
+            .FirstOrDefaultAsync(c => c.Name == name, cancellationToken);
+    }
 }
