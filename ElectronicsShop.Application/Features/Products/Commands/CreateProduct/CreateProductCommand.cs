@@ -9,7 +9,6 @@ public sealed record CreateProductCommand(
     string Name,
     string Description,
     decimal PriceAmount,
-    string PriceCurrency,
     int StockQuantity,
     string Sku,
     int CategoryId,

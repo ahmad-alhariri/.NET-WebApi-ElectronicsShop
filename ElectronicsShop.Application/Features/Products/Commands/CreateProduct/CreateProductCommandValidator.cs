@@ -17,10 +17,6 @@ public class CreateProductCommandValidator:AbstractValidator<CreateProductComman
         RuleFor(x => x.PriceAmount)
             .GreaterThan(0).WithMessage("Price must be greater than zero.");
 
-        RuleFor(x => x.PriceCurrency)
-            .NotEmpty().WithMessage("Currency is required.")
-            .Length(3).WithMessage("Currency must be a valid ISO 4217 3-letter code (e.g., USD, EUR).");
-
         RuleFor(x => x.StockQuantity)
             .GreaterThanOrEqualTo(0).WithMessage("Stock quantity must be greater than or equal to zero.");
 

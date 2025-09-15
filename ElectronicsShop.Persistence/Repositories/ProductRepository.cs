@@ -38,6 +38,33 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
+    public async Task<IEnumerable<Product>?> GetFeaturedProducts(CancellationToken cancellationToken)
+    {
+        return await _products
+            .AsNoTracking()
+            .Where(p => p.IsActive && p.IsFeatured)
+            .OrderByDescending(p => p.Id)
+            .ToListAsync(cancellationToken);
+    }
+
+    public IQueryable<Product?> GetLowStockProducts(int threshold)
+    {
+        return _products
+            .AsNoTracking()
+            .AsQueryable()
+            .Where(p => p.IsActive && p.StockQuantity <= threshold)
+            .OrderBy(p => p.StockQuantity); 
+    }
+
+    public IQueryable<Product?> GetNewProducts()
+    {
+        return _products
+            .AsNoTracking()
+            .AsQueryable()
+            .Where(p => p.IsActive && p.CreatedDate >= DateTime.UtcNow.AddMonths(-1)) 
+            .OrderByDescending(p => p.CreatedDate);
+    }
+
     public async Task<IReadOnlyList<ProductSearchDto>?> SearchProducts(string term, int maxResults, CancellationToken cancellationToken)
     {
         var products = await _products

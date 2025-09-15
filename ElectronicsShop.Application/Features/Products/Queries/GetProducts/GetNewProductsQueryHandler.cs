@@ -8,7 +8,7 @@ using MediatR;
 namespace ElectronicsShop.Application.Features.Products.Queries.GetProducts;
 
 public sealed class GetNewProductsQueryHandler 
-    : ResponseHandler, IRequestHandler<GetNewProductsQuery, GenericResponse<List<ProductResponse>>>
+    : ResponseHandler, IRequestHandler<GetNewProductsQuery, GenericResponse<List<ProductListResponse>>>
 {
     private readonly IProductRepository _productRepository;
     private readonly IMapper _mapper;
@@ -19,22 +19,18 @@ public sealed class GetNewProductsQueryHandler
         _mapper = mapper;
     }
 
-    public async Task<GenericResponse<List<ProductResponse>>> Handle(
+    public async Task<GenericResponse<List<ProductListResponse>>> Handle(
         GetNewProductsQuery request,
         CancellationToken cancellationToken)
     {
-        var query = _productRepository
-            .GetAllAsNoTracking()
-            .AsQueryable()
-            .Where(p => p.IsActive && p.CreatedDate >= DateTime.UtcNow.AddMonths(-1)) 
-            .OrderByDescending(p => p.CreatedDate);
+        var query = _productRepository.GetNewProducts();
 
         var pagedProducts = await query.ToPagedListAsync(
             request.Page,
             request.PageSize,
             cancellationToken);
 
-        var dto = _mapper.Map<List<ProductResponse>>(pagedProducts.Items);
+        var dto = _mapper.Map<List<ProductListResponse>>(pagedProducts.Items);
 
         return Paginated(
             dto,

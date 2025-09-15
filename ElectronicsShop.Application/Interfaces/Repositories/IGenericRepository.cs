@@ -18,6 +18,6 @@ public interface IGenericRepository<TEntity> where TEntity : class
     void Remove(TEntity entity);
     void RemoveRange(List<TEntity> entities);
     
-    Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate);
+    Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
     Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null,CancellationToken cancellationToken = default);
 }

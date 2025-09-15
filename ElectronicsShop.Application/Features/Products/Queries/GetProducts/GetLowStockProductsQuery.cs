@@ -8,4 +8,4 @@ public sealed record GetLowStockProductsQuery(
     int Threshold = 10,
     int Page = 1,
     int PageSize = 20
-) : IRequest<GenericResponse<List<ProductResponse>>>;
+) : IRequest<GenericResponse<List<ProductListResponse>>>;

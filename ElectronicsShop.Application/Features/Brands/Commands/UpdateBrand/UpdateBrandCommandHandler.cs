@@ -24,7 +24,7 @@ public class UpdateBrandCommandHandler:ResponseHandler, IRequestHandler<UpdateBr
 
         // check if name exist
         var isBrandNameExist =
-            await _brandRepository.ExistsAsync(b => b.Name == request.Name && b.Id != request.Id);
+            await _brandRepository.ExistsAsync(b => b.Name == request.Name && b.Id != request.Id,cancellationToken);
         if (isBrandNameExist) return Conflict<int>("Brand name already exists");
 
         

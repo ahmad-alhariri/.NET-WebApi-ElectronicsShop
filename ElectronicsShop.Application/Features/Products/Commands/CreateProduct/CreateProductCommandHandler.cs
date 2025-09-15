@@ -1,9 +1,11 @@
 using ElectronicsShop.Application.Common.Models;
+using ElectronicsShop.Application.Common.Settings;
 using ElectronicsShop.Application.Interfaces.Repositories;
 using ElectronicsShop.Application.Interfaces.Services;
 using ElectronicsShop.Domain.Common.ValueObjects;
 using ElectronicsShop.Domain.Products;
 using MediatR;
+using Microsoft.Extensions.Options;
 
 namespace ElectronicsShop.Application.Features.Products.Commands.CreateProduct;
 
@@ -15,18 +17,21 @@ public class CreateProductCommandHandler: ResponseHandler, IRequestHandler<Creat
     private readonly ICategoryRepository _categoryRepository;
     private readonly IBrandRepository _brandRepository;
 
+    private readonly CurrencySettings _currencySettings;
     public CreateProductCommandHandler(
         IProductRepository productRepository,
         IUnitOfWork unitOfWork,
         IFileService fileService,
         ICategoryRepository categoryRepository,
-        IBrandRepository brandRepository)
+        IBrandRepository brandRepository,
+        IOptions<CurrencySettings> currencySettings)
     {
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
         _fileService = fileService;
         _categoryRepository = categoryRepository;
         _brandRepository = brandRepository;
+        _currencySettings = currencySettings.Value;
     }
     
     public async Task<GenericResponse<int>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
@@ -40,8 +45,13 @@ public class CreateProductCommandHandler: ResponseHandler, IRequestHandler<Creat
         if (brand is null)
             return NotFound<int>("Invalid Brand ID. The specified Brand does not exist.");
         
+        // check if sku is uniq
+        var isSkuUniq = await _productRepository.ExistsAsync(p => p.Sku == request.Sku, cancellationToken);
+        if (isSkuUniq)
+            return BadRequest<int>("SKU must be uniq");
+        
         // Convert to Money value object
-        var price = new Money(request.PriceAmount, request.PriceCurrency);
+        var price = new Money(request.PriceAmount, _currencySettings.DefaultCurrency);
 
         // Create product via factory method
         var productResult = Product.Create(

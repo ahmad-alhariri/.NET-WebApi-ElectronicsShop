@@ -21,10 +21,7 @@ public class UpdateProductCommandValidator: AbstractValidator<UpdateProductComma
         RuleFor(p => p.PriceAmount)
             .NotEmpty()
             .GreaterThan(0).WithMessage("Price amount must be greater than zero.");
-
-        RuleFor(p => p.PriceCurrency)
-            .NotEmpty().WithMessage("Price currency is required.")
-            .Length(3).WithMessage("Price currency must be a valid ISO currency code.");
+        
 
         RuleFor(p => p.Sku)
             .NotEmpty().WithMessage("SKU is required.")

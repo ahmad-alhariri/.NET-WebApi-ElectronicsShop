@@ -1,9 +1,11 @@
 using ClosedXML.Excel;
+using ElectronicsShop.Application.Common.Settings;
 using ElectronicsShop.Application.Features.Products.Dtos;
 using ElectronicsShop.Application.Interfaces.Repositories;
 using ElectronicsShop.Application.Interfaces.Services;
 using ElectronicsShop.Domain.Common.ValueObjects;
 using ElectronicsShop.Domain.Products;
+using Microsoft.Extensions.Options;
 
 namespace ElectronicsShop.Infrastructure.Services;
 
@@ -14,16 +16,19 @@ public class BulkProductService : IBulkProductService
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
 
+    private readonly CurrencySettings _currencySettings;
     public BulkProductService(
         ICategoryRepository categoryRepository,
         IBrandRepository brandRepository,
         IProductRepository productRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IOptions<CurrencySettings> currencySettings)
     {
         _categoryRepository = categoryRepository;
         _brandRepository = brandRepository;
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
+        _currencySettings = currencySettings.Value;
     }
 
     public byte[] ExportProducts(IEnumerable<ProductExportDto> products)
@@ -133,7 +138,7 @@ public class BulkProductService : IBulkProductService
                     var updateResult = existing.UpdateDetails(
                         name,
                         description,
-                        new Money(priceValue, "USD"),
+                        new Money(priceValue, _currencySettings.DefaultCurrency),
                         sku,
                         category.Id,
                         brand.Id
@@ -160,7 +165,7 @@ public class BulkProductService : IBulkProductService
                     var productResult = Product.Create(
                         name,
                         description,
-                        new Money(priceValue, "USD"),
+                        new Money(priceValue, _currencySettings.DefaultCurrency),
                         stock,
                         sku,
                         category.Id,

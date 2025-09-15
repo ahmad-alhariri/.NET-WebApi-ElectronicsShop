@@ -9,7 +9,6 @@ public sealed record UpdateProductCommand(
     string Name,
     string Description,
     decimal PriceAmount,
-    string PriceCurrency,
     string Sku,
     int CategoryId,
     int BrandId,

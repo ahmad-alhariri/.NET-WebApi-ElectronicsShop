@@ -1,6 +1,6 @@
 namespace ElectronicsShop.Application.Features.Products.Dtos;
 
-public sealed class ProductResponse
+public sealed class ProductListResponse
 {
     public int Id { get; init; }
 
@@ -9,14 +9,10 @@ public sealed class ProductResponse
     public string Description { get; init; }
     
     public string Sku { get; init; }
-    
     public decimal PriceAmount { get; init; }
-    
     public string PriceCurrency { get; init; }
-
     public int StockQuantity { get; init; }
     public string CategoryName { get; init; }
-    
     public string BrandName { get; init; }
     
     public bool IsActive { get; init; }
@@ -25,10 +21,7 @@ public sealed class ProductResponse
     public bool IsInStock => StockQuantity > 0;
     public bool IsNew { get; init; }
     
-    public List<SpecificationDto> Specifications { get; set; } = new();
-    
-    // This property is now a list of structured ImageDto objects
-    public List<ImageDto> Images { get; init; }
+    public string ImageUrl { get; init; }
 
     public DateTime CreatedDate { get; init; }
 

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ElectronicsShop.Application.Features.Products.Queries.GetProducts;
 
-public class GetProductsQueryHandler:ResponseHandler, IRequestHandler<GetProductsQuery, GenericResponse<List<ProductResponse>>>
+public class GetProductsQueryHandler:ResponseHandler, IRequestHandler<GetProductsQuery, GenericResponse<List<ProductListResponse>>>
 {
     private readonly IProductRepository _productRepository;
     private readonly IMapper _mapper;
@@ -20,7 +20,7 @@ public class GetProductsQueryHandler:ResponseHandler, IRequestHandler<GetProduct
         _mapper = mapper;
     }
     
-    public async Task<GenericResponse<List<ProductResponse>>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
+    public async Task<GenericResponse<List<ProductListResponse>>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
     {
         var productsQuery =  _productRepository.GetAll()
             .Include(p => p.Category)
@@ -59,13 +59,30 @@ public class GetProductsQueryHandler:ResponseHandler, IRequestHandler<GetProduct
             }
         }
         
+        if (request.IsNew.HasValue)
+        {
+            if (request.IsNew.Value)
+            {
+                productsQuery = productsQuery.Where(p => p.CreatedDate >= DateTime.UtcNow.AddMonths(-1));
+            }
+        }
+        
+        if (request.IsFeatured.HasValue)
+        {
+            if (request.IsFeatured.Value)
+            {
+                productsQuery = productsQuery.Where(p => p.IsFeatured);
+            }
+        }
+        
         // == SEARCHING ==
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {
             var searchTermLower = request.SearchTerm.ToLower();
             productsQuery = productsQuery.Where(p => 
                 p.Name.ToLower().Contains(searchTermLower) || 
-                p.Description.ToLower().Contains(searchTermLower));
+                p.Description.ToLower().Contains(searchTermLower) || 
+                p.Sku.ToLower().Contains(searchTermLower));
         }
         
         var isDescending = request.SortDirection.Equals("desc", StringComparison.CurrentCultureIgnoreCase);
@@ -81,7 +98,7 @@ public class GetProductsQueryHandler:ResponseHandler, IRequestHandler<GetProduct
         
         var pagedProducts = await productsQuery.ToPagedListAsync(request.PageNumber, request.PageSize, cancellationToken);
 
-        var brandResponses = _mapper.Map<List<ProductResponse>>(pagedProducts.Items);
+        var brandResponses = _mapper.Map<List<ProductListResponse>>(pagedProducts.Items);
         
         return Paginated(brandResponses, pagedProducts.TotalCount, pagedProducts.PageNumber, pagedProducts.PageSize, "Brands retrieved successfully");
     }

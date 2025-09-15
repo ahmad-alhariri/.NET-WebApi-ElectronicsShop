@@ -22,7 +22,7 @@ public class CreateCategoryCommandHandler:ResponseHandler, IRequestHandler<Creat
     public async Task<GenericResponse<int>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
         // check if category exists
-        var existingCategory = await _categoryRepository.ExistsAsync(c => c.Name ==request.CategoryName);
+        var existingCategory = await _categoryRepository.ExistsAsync(c => c.Name ==request.CategoryName,cancellationToken);
         if (existingCategory)
         {
             return Conflict<int>("Category with the same name already exists");

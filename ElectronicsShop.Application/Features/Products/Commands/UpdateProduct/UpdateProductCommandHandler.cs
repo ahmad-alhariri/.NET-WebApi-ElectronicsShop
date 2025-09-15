@@ -1,8 +1,10 @@
 using ElectronicsShop.Application.Common.Models;
+using ElectronicsShop.Application.Common.Settings;
 using ElectronicsShop.Application.Interfaces.Repositories;
 using ElectronicsShop.Domain.Common.Results;
 using ElectronicsShop.Domain.Common.ValueObjects;
 using MediatR;
+using Microsoft.Extensions.Options;
 
 namespace ElectronicsShop.Application.Features.Products.Commands.UpdateProduct;
 
@@ -12,13 +14,20 @@ public class UpdateProductCommandHandler:ResponseHandler,IRequestHandler<UpdateP
     private readonly IUnitOfWork _unitOfWork;
     private readonly IBrandRepository _brandRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly CurrencySettings _currencySettings;
 
-    public UpdateProductCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork, IBrandRepository brandRepository, ICategoryRepository categoryRepository)
+    public UpdateProductCommandHandler(
+        IProductRepository productRepository,
+        IUnitOfWork unitOfWork,
+        IBrandRepository brandRepository,
+        ICategoryRepository categoryRepository,
+        IOptions<CurrencySettings> currencySettings)
     {
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
         _brandRepository = brandRepository;
         _categoryRepository = categoryRepository;
+        _currencySettings = currencySettings.Value;
     }
     
     public async Task<GenericResponse<int>> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
@@ -32,20 +41,28 @@ public class UpdateProductCommandHandler:ResponseHandler,IRequestHandler<UpdateP
         }
         
         // Validate related entities (Category and Brand)
-        var categoryExists = await _categoryRepository.ExistsAsync(c => c.Id == request.CategoryId);
+        var categoryExists = await _categoryRepository.ExistsAsync(c => c.Id == request.CategoryId,cancellationToken);
         if (!categoryExists)
         {
             return Conflict<int>("Invalid category ID.");
         }
 
-        var brandExists = await _brandRepository.ExistsAsync(b => b.Id == request.BrandId);
+        var brandExists = await _brandRepository.ExistsAsync(b => b.Id == request.BrandId,cancellationToken);
         if (!brandExists)
         {
             return Conflict<int>("Invalid brand ID.");
         }
         
+        // Check if the SKU is unique (excluding the current product)
+        var isSkuUniq = await _productRepository.ExistsAsync(p => p.Sku == request.Sku && p.Id != request.Id, cancellationToken);
+        if (isSkuUniq)
+        {
+            return Conflict<int>("SKU must be unique.");
+        }
+        
         // Create the Money value object for the price
-        var price = new Money(request.PriceAmount, request.PriceCurrency);
+        var price = new Money(request.PriceAmount, _currencySettings.DefaultCurrency);
+        
 
         // Call the domain entity's method to perform the update
         var updateResult = product.UpdateDetails(

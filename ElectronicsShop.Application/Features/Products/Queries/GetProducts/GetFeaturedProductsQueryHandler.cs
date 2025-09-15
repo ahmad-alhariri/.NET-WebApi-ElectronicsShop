@@ -8,7 +8,7 @@ using MediatR;
 namespace ElectronicsShop.Application.Features.Products.Queries.GetProducts;
 
 public sealed class GetFeaturedProductsQueryHandler 
-    : ResponseHandler, IRequestHandler<GetFeaturedProductsQuery, GenericResponse<List<ProductResponse>>>
+    : ResponseHandler, IRequestHandler<GetFeaturedProductsQuery, GenericResponse<List<ProductListResponse>>>
 {
     private readonly IProductRepository _productRepository;
     private readonly IMapper _mapper;
@@ -19,29 +19,14 @@ public sealed class GetFeaturedProductsQueryHandler
         _mapper = mapper;
     }
 
-    public async Task<GenericResponse<List<ProductResponse>>> Handle(
+    public async Task<GenericResponse<List<ProductListResponse>>> Handle(
         GetFeaturedProductsQuery request,
         CancellationToken cancellationToken)
     {
-        var query = _productRepository
-            .GetAllAsNoTracking()
-            .AsQueryable()
-            .Where(p => p.IsActive && p.IsFeatured)
-            .OrderByDescending(p => p.CreatedDate); 
+        var featuredProducts = await _productRepository.GetFeaturedProducts(cancellationToken);
+        
+        var responses = _mapper.Map<List<ProductListResponse>>(featuredProducts);
 
-        var pagedProducts = await query.ToPagedListAsync(
-            request.Page,
-            request.PageSize,
-            cancellationToken);
-
-        var dto = _mapper.Map<List<ProductResponse>>(pagedProducts.Items);
-
-        return Paginated(
-            dto,
-            pagedProducts.TotalCount,
-            pagedProducts.PageNumber,
-            pagedProducts.PageSize,
-            "Featured products retrieved successfully"
-        );
+        return Success(responses, "Featured products retrieved successfully");
     }
 }
