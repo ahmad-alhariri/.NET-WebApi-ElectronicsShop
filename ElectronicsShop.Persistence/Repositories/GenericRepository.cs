@@ -18,7 +18,7 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
 
     public async Task<TEntity?> GetByIdAsync(int id)
     {
-        return await _dbSet.FindAsync(id);
+        return await _dbSet.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
     }
 
     public IQueryable<TEntity> GetAll()
@@ -36,9 +36,9 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         return await _dbSet.Where(predicate).ToListAsync();
     }
 
-    public async Task AddAsync(TEntity entity)
+    public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        await _dbSet.AddAsync(entity);
+        await _dbSet.AddAsync(entity, cancellationToken);
     }
 
     public async Task AddRangeAsync(List<TEntity> entities)
@@ -76,18 +76,16 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         return await _dbSet.Where(predicate).AsNoTracking().ToListAsync().ConfigureAwait(false);
     }
     
-    
-
-    public async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate)
+    public async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.AnyAsync(predicate).ConfigureAwait(false);
+        return await _dbSet.AnyAsync(predicate, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null)
+    public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default)
     {
         return predicate == null
-            ? await _dbSet.CountAsync().ConfigureAwait(false)
-            : await _dbSet.CountAsync(predicate).ConfigureAwait(false);
+            ? await _dbSet.CountAsync(cancellationToken).ConfigureAwait(false)
+            : await _dbSet.CountAsync(predicate,cancellationToken).ConfigureAwait(false);
     }
 
 

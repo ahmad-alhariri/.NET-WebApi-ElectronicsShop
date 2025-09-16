@@ -13,4 +13,10 @@ public class BrandRepository : GenericRepository<Brand>, IBrandRepository
     {
         _brands = context.Set<Brand>();
     }
+
+    public async Task<Brand?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+    {
+        return await _brands
+            .FirstOrDefaultAsync(b => b.Name == name, cancellationToken);
+    }
 }

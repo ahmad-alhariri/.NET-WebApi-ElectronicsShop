@@ -1,3 +1,4 @@
+using ElectronicsShop.Api;
 using ElectronicsShop.Application;
 using ElectronicsShop.Application.Middlewares;
 using ElectronicsShop.Domain;
@@ -9,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services
+    .AddPresentation(builder.Configuration)
     .AddDomain()
     .AddApplication()
     .AddInfrastructure()

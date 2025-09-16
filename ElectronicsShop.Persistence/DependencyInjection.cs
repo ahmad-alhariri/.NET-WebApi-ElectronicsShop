@@ -1,15 +1,12 @@
-using System.Text;
+
 using ElectronicsShop.Application.Interfaces;
 using ElectronicsShop.Application.Interfaces.Repositories;
 using ElectronicsShop.Persistence.DataContext;
 using ElectronicsShop.Persistence.Interceptors;
 using ElectronicsShop.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 
 namespace ElectronicsShop.Persistence;
 
@@ -46,6 +43,8 @@ public static class DependencyInjection
         // 3. Scoped IApplicationDbContext
         // This allows injecting the interface, which is useful for testing.
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+        
+        
 
         // services.AddScoped<ApplicationDbContextInitialiser>();
     }
@@ -56,6 +55,7 @@ public static class DependencyInjection
             .AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork))
             .AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
             .AddScoped<IBrandRepository,BrandRepository>()
-            .AddScoped<ICategoryRepository,CategoryRepository>();
+            .AddScoped<ICategoryRepository,CategoryRepository>()
+            .AddScoped<IProductRepository,ProductRepository>();
     }
 }

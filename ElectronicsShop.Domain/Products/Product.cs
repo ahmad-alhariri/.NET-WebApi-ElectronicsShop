@@ -14,6 +14,9 @@ public sealed class Product : BaseAuditableEntity
     public int StockQuantity { get; private set; }
     public string Sku { get; private set; }
     public bool IsActive { get; private set; }
+
+    public bool IsFeatured { get; private set; }
+    
     
     // Value objects
     public Money Price { get; private set; }
@@ -32,7 +35,10 @@ public sealed class Product : BaseAuditableEntity
     private readonly List<ProductImage> _images = new();
     public IEnumerable<ProductImage> Images => _images.AsReadOnly();
 
-    private Product() { } // EF Core
+
+    #region Constructors
+
+    private Product() { }
 
     private Product(string name, string description, Money price, int stockQuantity,
         string sku, int categoryId, int brandId, Dictionary<string, string>? initialSpecifications = null)
@@ -52,6 +58,10 @@ public sealed class Product : BaseAuditableEntity
         }
     }
 
+    #endregion
+
+
+    #region Factory Method and Update Details
 
     public static Result<Product> Create(string name, string description, Money price,
         int stockQuantity, string sku, int categoryId, int brandId)
@@ -92,8 +102,7 @@ public sealed class Product : BaseAuditableEntity
 
         return product;
     }
-
-
+    
     public Result<Updated> UpdateDetails(string name, string description, Money price,
         string sku, int categoryId, int brandId)
     {
@@ -125,6 +134,58 @@ public sealed class Product : BaseAuditableEntity
         return Result.Updated;
     }
 
+    #endregion
+
+    
+
+    #region Business Methods
+    public Result<Success> AddImage(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return ProductErrors.ImageUrlRequired;
+
+        // Enforce unique URLs
+        if (_images.Any(img => img.Url.Equals(url, StringComparison.OrdinalIgnoreCase)))
+            return ProductErrors.DuplicateImage;
+
+        bool isFirstImage = !_images.Any();
+        var newImage = new ProductImage(url, Id, isFirstImage);
+        _images.Add(newImage);
+
+        return Result.Success;
+    }
+    
+    public Result<Success> RemoveImage(int productImageId)
+    {
+        var imageToRemove = _images.FirstOrDefault(img => img.Id == productImageId);
+        if (imageToRemove is null)
+            return ProductErrors.ImageNotFount;
+
+        bool wasPrimary = imageToRemove.IsPrimary;
+        _images.Remove(imageToRemove);
+
+        // If the removed image was primary, set a new primary if any images remain
+        if (wasPrimary && _images.Any())
+        {
+            _images[0].SetAsPrimary();
+        }
+
+        return Result.Success;
+    }
+
+    public Result<Success> SetPrimaryImage(int productImageId)
+    {
+        var newPrimaryImage = _images.FirstOrDefault(img => img.Id == productImageId);
+        if (newPrimaryImage is null)
+            return ProductErrors.ImageNotFount;
+
+        var currentPrimaryImage = _images.FirstOrDefault(img => img.IsPrimary);
+        currentPrimaryImage?.UnsetAsPrimary();
+
+        newPrimaryImage.SetAsPrimary();
+
+        return Result.Success;
+    }
     public Result<Updated> UpdatePrice(Money newPrice)
     {
         if (newPrice.Amount <= 0)
@@ -167,6 +228,29 @@ public sealed class Product : BaseAuditableEntity
 
         return UpdateStock(newQuantity);
     }
+    public Result<Success> SetSpecification(string key, string value)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            return ProductErrors.SpecificationKeyRequired;
+
+        _specifications[key] = value;
+        return Result.Success;
+    }
+
+    public Result<Success> RemoveSpecification(string key)
+    {
+        _specifications.Remove(key);
+        return Result.Success;
+    }
+    
+    public Result<Success> RemoveAllSpecification()
+    {
+        _specifications.Clear();
+        return Result.Success;
+    }
+
+    public void MarkAsFeatured() => IsFeatured = true;
+    public void UnmarkAsFeatured() => IsFeatured = false;
     
     public Result<Updated> Activate()
     {
@@ -187,52 +271,13 @@ public sealed class Product : BaseAuditableEntity
 
         return Result.Updated;
     }
+    #endregion
 
-    public Result<Success> AddImage(string url)
-    {
-        if (string.IsNullOrWhiteSpace(url))
-            return ProductErrors.ImageUrlRequired;
-
-        // Enforce unique URLs
-        if (_images.Any(img => img.Url.Equals(url, StringComparison.OrdinalIgnoreCase)))
-            return ProductErrors.DuplicateImage;
-
-        bool isFirstImage = !_images.Any();
-        var newImage = new ProductImage(url, Id, isFirstImage);
-        _images.Add(newImage);
-
-        return Result.Success;
-    }
-
-    public Result<Success> SetPrimaryImage(int productImageId)
-    {
-        var newPrimaryImage = _images.FirstOrDefault(img => img.Id == productImageId);
-        if (newPrimaryImage is null)
-            return ProductErrors.ImageNotFount;
-
-        var currentPrimaryImage = _images.FirstOrDefault(img => img.IsPrimary);
-        currentPrimaryImage?.UnsetAsPrimary();
-
-        newPrimaryImage.SetAsPrimary();
-
-        return Result.Success;
-    }
-    public Result<Success> SetSpecification(string key, string value)
-    {
-        if (string.IsNullOrWhiteSpace(key))
-            return ProductErrors.SpecificationKeyRequired;
-
-        _specifications[key] = value;
-        return Result.Success;
-    }
-
-    public Result<Success> RemoveSpecification(string key)
-    {
-        _specifications.Remove(key);
-        return Result.Success;
-    }
+    
     
     // Business rules
     public bool IsInStock() => IsActive && StockQuantity > 0;
     public bool IsLowStock() => IsActive && StockQuantity is > 0 and <= 10;
+    
+    
 }

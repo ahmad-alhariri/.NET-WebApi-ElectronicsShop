@@ -9,16 +9,15 @@ public static class ApiRoutes
     public static class Categories
     {
         private const string Resource = "/categories";
+        
         public const string GetAll = Base + Resource;
-        public const string GetAllWithProducts = Base + Resource + "/with-products";
-
         public const string GetById = Base + Resource + "/{id}";
-        public const string GetByIdWithProducts = Base + Resource + "/{id}/with-products";
 
         public const string Create = Base + Resource;
         public const string Update = Base + Resource + "/{id}";
         public const string Delete = Base + Resource + "/{id}";
-        public const string Paginated = Base + Resource + "/paginated";
+        
+        public const string ProductsByCategory = Base + Resource + "/{id}/products";
     }
 
     public static class Brands
@@ -31,18 +30,42 @@ public static class ApiRoutes
         public const string Create = Base + Resource;
         public const string Update = Base + Resource + "/{id}";
         public const string Delete = Base + Resource + "/{id}";
+        
+        public const string ProductsByBrand = Base + Resource + "/{id}/products";
     }
 
     public static class Products
     {
         private const string Resource = "/products";
+        
         public const string GetAll = Base + Resource;
         public const string GetById = Base + Resource + "/{id}";
         public const string Search = Base + Resource + "/search";
+        public const string LowStock = Base + Resource + "/low-stock";
+        public const string FeaturedProducts = Base + Resource + "/featured";
+        public const string NewProducts = Base + Resource + "/new";
+        public const string Statistics = Base + Resource + "/statistics";
+        public const string Export = Base + Resource + "/export";
+        public const string BulkImport = Base + Resource + "/import";
+        
         public const string Create = Base + Resource;
-        public const string Update = Base + Resource;
+        public const string Update = Base + Resource + "/{id}";
         public const string Delete = Base + Resource + "/{id}";
-        public const string Paginated = Base + Resource + "/paginated";
+        
+        public const string AddImages = Base + Resource + "/{id}/images";
+        public const string RemoveImage = Base + Resource + "/{id}/images/{imageId}";
+        public const string RemoveImages = Base + Resource + "/{id}/images";
+        public const string SetPrimaryImage = Base + Resource + "/{id}/images/{imageId}/set-primary";
+        
+        public const string UpdateStock = Base + Resource + "/{id}/update-stock";
+        public const string UpdatePrice = Base + Resource + "/{id}/update-price";
+        
+        public const string Featured = Base + Resource + "/{id}/featured";
+        
+        public const string AddSpecifications = Base + Resource + "/{id}/specifications";
+        public const string RemoveSpecification = Base + Resource + "/{id}/specifications/{key}";
+        public const string ClearSpecifications = Base + Resource + "/{id}/specifications";
+
     }
 
     public static class Users

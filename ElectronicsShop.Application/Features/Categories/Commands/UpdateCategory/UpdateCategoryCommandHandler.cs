@@ -29,7 +29,7 @@ public class UpdateCategoryCommandHandler:ResponseHandler, IRequestHandler<Updat
 
         // 2. Check if new name already exists (excluding current category)
         var exists = await _categoryRepository.ExistsAsync(
-            c => c.Name == request.Name && c.Id != request.Id);
+            c => c.Name == request.Name && c.Id != request.Id,cancellationToken);
 
         if (exists)
         {

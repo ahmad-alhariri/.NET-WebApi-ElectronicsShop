@@ -9,7 +9,7 @@ public interface IGenericRepository<TEntity> where TEntity : class
     IEnumerable<TEntity> GetAllAsNoTracking();
     Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate);
     
-    Task AddAsync(TEntity entity);
+    Task AddAsync(TEntity entity, CancellationToken cancellationToken = default);
     Task AddRangeAsync(List<TEntity> entities);
 
     void Update(TEntity entity);
@@ -18,6 +18,6 @@ public interface IGenericRepository<TEntity> where TEntity : class
     void Remove(TEntity entity);
     void RemoveRange(List<TEntity> entities);
     
-    Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate);
-    Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null);
+    Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
+    Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null,CancellationToken cancellationToken = default);
 }
