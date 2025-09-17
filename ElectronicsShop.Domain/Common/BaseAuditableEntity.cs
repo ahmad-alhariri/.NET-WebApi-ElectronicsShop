@@ -11,5 +11,6 @@ public abstract class BaseAuditableEntity: BaseEntity, IAuditableEntity
     public DateTime? UpdatedDate { get; set; }
     
     public int? DeletedBy { get; set; }
+    
     public DateTime? DeletedDate { get; set; }
 }
