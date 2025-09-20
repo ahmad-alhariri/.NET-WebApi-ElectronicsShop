@@ -13,7 +13,7 @@ public class UnitOfWork:IUnitOfWork
         _dbContext = dbContext;
     }
 
-    public Task<IDbContextTransaction> BeginTransactionAsync() => _dbContext.Database.BeginTransactionAsync();
+    public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) => _dbContext.Database.BeginTransactionAsync(cancellationToken);
     
     public Task CommitAsync(CancellationToken cancellationToken = default) => _dbContext.Database.CommitTransactionAsync(cancellationToken);
     

@@ -1,5 +1,5 @@
 using ClosedXML.Excel;
-using ElectronicsShop.Application.Common.Settings;
+using ElectronicsShop.Domain.Settings;
 using ElectronicsShop.Application.Features.Products.Dtos;
 using ElectronicsShop.Application.Interfaces.Repositories;
 using ElectronicsShop.Application.Interfaces.Services;

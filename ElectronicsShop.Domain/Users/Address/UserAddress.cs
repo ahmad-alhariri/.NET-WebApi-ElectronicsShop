@@ -11,7 +11,6 @@ public sealed class UserAddress : BaseEntity
     public string State { get; private set; }
     public string Country { get; private set; }
     public string? PostalCode { get; private set; }
-    public AddressType Type { get; private set; }
     public bool IsDefault { get; private set; }
     public Guid UserId { get; private set; }
 
@@ -21,20 +20,19 @@ public sealed class UserAddress : BaseEntity
     private UserAddress() { }
 
     private UserAddress(string street, string city, string state, string country, 
-        string? postalCode, AddressType type, Guid userId)
+        string? postalCode, Guid userId)
     {
         Street = street.Trim();
         City = city.Trim();
         State = state.Trim();
         Country = country.Trim();
         PostalCode = postalCode?.Trim();
-        Type = type;
         UserId = userId;
         IsDefault = false;
     }
 
     public static Result<UserAddress> Create(string street, string city, string state, 
-        string country, string? postalCode, AddressType type, Guid userId)
+        string country, string? postalCode, Guid userId)
     {
         if (string.IsNullOrWhiteSpace(street))
             return UserErrors.StreetRequired;
@@ -49,7 +47,7 @@ public sealed class UserAddress : BaseEntity
             return UserErrors.CountryRequired;
         
 
-        return new UserAddress(street, city, state, country, postalCode, type, userId);
+        return new UserAddress(street, city, state, country, postalCode, userId);
     }
 
     public void SetAsDefault() => IsDefault = true;

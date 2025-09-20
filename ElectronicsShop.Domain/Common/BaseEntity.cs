@@ -3,7 +3,7 @@ using ElectronicsShop.Domain.Common.Interfaces;
 
 namespace ElectronicsShop.Domain.Common;
 
-public abstract class BaseEntity: IEntity
+public abstract class BaseEntity: IEntity, IHasDomainEvents
 {
     private readonly List<BaseEvent> _domainEvents = new();
  

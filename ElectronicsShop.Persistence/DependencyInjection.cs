@@ -1,9 +1,14 @@
 
 using ElectronicsShop.Application.Interfaces;
 using ElectronicsShop.Application.Interfaces.Repositories;
+using ElectronicsShop.Domain.Common;
+using ElectronicsShop.Domain.Common.Interfaces;
+using ElectronicsShop.Domain.Users;
+using ElectronicsShop.Domain.Users.Identity;
 using ElectronicsShop.Persistence.DataContext;
 using ElectronicsShop.Persistence.Interceptors;
 using ElectronicsShop.Persistence.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +22,7 @@ public static class DependencyInjection
         services.AddSingleton(TimeProvider.System);
 
         AddDbContext(services,configuration);
+        AddSecurityServices(services);
         AddRepositories(services);
         return services;
     }
@@ -48,6 +54,30 @@ public static class DependencyInjection
 
         // services.AddScoped<ApplicationDbContextInitialiser>();
     }
+    private static void AddSecurityServices(IServiceCollection services)
+    {
+        services.AddIdentityCore<User>(option =>
+        {
+            // Password settings.
+            option.Password.RequireDigit = true;
+            option.Password.RequireNonAlphanumeric = false;
+            option.Password.RequireUppercase = false;
+            option.Password.RequiredLength = 6;
+            option.Password.RequiredUniqueChars = 1;
+
+            // Lockout settings.
+            option.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+            option.Lockout.MaxFailedAccessAttempts = 5;
+            option.Lockout.AllowedForNewUsers = true;
+
+            // User settings.
+            option.User.RequireUniqueEmail = true;
+            option.SignIn.RequireConfirmedEmail = true;
+        })
+            .AddRoles<Role>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
+    }
     
     private static void AddRepositories(this IServiceCollection services)
     {
@@ -56,6 +86,7 @@ public static class DependencyInjection
             .AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
             .AddScoped<IBrandRepository,BrandRepository>()
             .AddScoped<ICategoryRepository,CategoryRepository>()
-            .AddScoped<IProductRepository,ProductRepository>();
+            .AddScoped<IProductRepository,ProductRepository>()
+            .AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();;
     }
 }

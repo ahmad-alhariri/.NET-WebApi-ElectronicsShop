@@ -1,4 +1,8 @@
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Net.Mail;
+using System.Text.RegularExpressions;
 using ElectronicsShop.Domain.Common;
+using ElectronicsShop.Domain.Common.Interfaces;
 using ElectronicsShop.Domain.Common.Results;
 using ElectronicsShop.Domain.Identity.User;
 using ElectronicsShop.Domain.Users.Address;
@@ -9,7 +13,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace ElectronicsShop.Domain.Users;
 
-public sealed class User : IdentityUser<Guid>
+public sealed class User : IdentityUser<Guid>, IHasDomainEvents
 {
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
@@ -28,6 +32,7 @@ public sealed class User : IdentityUser<Guid>
 
     // Domain events
     private readonly List<BaseEvent> _domainEvents = new();
+    [NotMapped]
     public IReadOnlyCollection<BaseEvent> DomainEvents => _domainEvents.AsReadOnly();
 
     // Audit properties
@@ -38,7 +43,7 @@ public sealed class User : IdentityUser<Guid>
     #region Constructors
     private User() { }
 
-    private User(string email, string firstName, string lastName, string userName)
+    private User(string email, string firstName, string lastName, string userName, string? phoneNumber = null)
     {
         Email = email.ToLower().Trim();
         NormalizedEmail = email.ToUpper().Trim();
@@ -46,13 +51,15 @@ public sealed class User : IdentityUser<Guid>
         LastName = lastName.Trim();
         UserName = userName.ToLower().Trim();
         NormalizedUserName = userName.ToUpper().Trim();
+        PhoneNumber = phoneNumber?.Trim();
         Status = UserStatus.Active;
+        CreatedDate = DateTime.UtcNow;
 
     }
     #endregion
 
     #region Factory Methods
-    public static Result<User> Create(string email, string firstName, string lastName, string? userName = null)
+    public static Result<User> Create(string email, string firstName, string lastName, string? userName = null, string? phoneNumber = null)
     {
         if (string.IsNullOrWhiteSpace(email))
             return UserErrors.EmailRequired;
@@ -70,8 +77,13 @@ public sealed class User : IdentityUser<Guid>
 
         if (!IsValidUserName(finalUserName))
             return UserErrors.InvalidUserName;
+        
+        if (!IsValidPhoneNumber(phoneNumber))
+            return UserErrors.InvalidPhoneNumber;
 
-        var user = new User(email, firstName, lastName, finalUserName);
+
+
+        var user = new User(email, firstName, lastName, finalUserName, phoneNumber);
         user.AddDomainEvent(new UserCreatedEvent(user.Id, user.Email!, user.FirstName, user.LastName));
 
         return user;
@@ -102,6 +114,7 @@ public sealed class User : IdentityUser<Guid>
             PhoneNumber = phoneNumber.Trim();
         }
         
+        UpdatedDate = DateTime.UtcNow;
         return Result.Updated;
     }
     
@@ -109,9 +122,9 @@ public sealed class User : IdentityUser<Guid>
 
     #region Address Management
     public Result<Success> AddAddress(string street, string city, string state, string country, 
-        string postalCode, AddressType type, bool isDefault = false)
+        string postalCode,  bool isDefault = false)
     {
-        var addressResult = UserAddress.Create(street, city, state, country, postalCode, type, Id);
+        var addressResult = UserAddress.Create(street, city, state, country, postalCode, Id);
         if (!addressResult.IsSuccess)
             return addressResult.Errors.First();
 
@@ -121,7 +134,7 @@ public sealed class User : IdentityUser<Guid>
         if (!_addresses.Any() || isDefault)
         {
             // Remove default flag from other addresses of the same type
-            foreach (var existingAddress in _addresses.Where(a => a.Type == type))
+            foreach (var existingAddress in _addresses)
             {
                 existingAddress.UnsetAsDefault();
             }
@@ -145,17 +158,15 @@ public sealed class User : IdentityUser<Guid>
         return Result.Success;
     }
 
-    public Result<Success> SetDefaultAddress(int addressId, AddressType type)
+    public Result<Success> SetDefaultAddress(int addressId)
     {
         var address = _addresses.FirstOrDefault(a => a.Id == addressId);
         if (address == null)
             return UserErrors.AddressNotFound;
-
-        if (address.Type != type)
-            return UserErrors.AddressTypeMismatch;
+        
 
         // Remove default flag from other addresses of the same type
-        foreach (var existingAddress in _addresses.Where(a => a.Type == type && a.Id != addressId))
+        foreach (var existingAddress in _addresses.Where(a =>  a.Id != addressId))
         {
             existingAddress.UnsetAsDefault();
         }
@@ -173,7 +184,11 @@ public sealed class User : IdentityUser<Guid>
     }
     #endregion
 
-
+    #region Domain Event Management
+    public void AddDomainEvent(BaseEvent domainEvent) => _domainEvents.Add(domainEvent);
+    internal void RemoveDomainEvent(BaseEvent domainEvent) => _domainEvents.Remove(domainEvent);
+    public void ClearDomainEvents() => _domainEvents.Clear();
+    #endregion
 
     #region Status Management
     public Result<Success> Activate()
@@ -204,14 +219,11 @@ public sealed class User : IdentityUser<Guid>
     #region Helper Methods
     public string GetFullName() => $"{FirstName} {LastName}";
     
-    public UserAddress? GetDefaultAddress(AddressType type) => 
-        _addresses.FirstOrDefault(a => a.Type == type && a.IsDefault);
+    public UserAddress? GetDefaultAddress() => 
+        _addresses.FirstOrDefault(a => a.IsDefault);
 
     public bool IsActive() => Status == UserStatus.Active;
     
-    public void AddDomainEvent(BaseEvent domainEvent) => _domainEvents.Add(domainEvent);
-    public void RemoveDomainEvent(BaseEvent domainEvent) => _domainEvents.Remove(domainEvent);
-    public void ClearDomainEvents() => _domainEvents.Clear();
     #endregion
 
     #region Validation Methods
@@ -219,7 +231,7 @@ public sealed class User : IdentityUser<Guid>
     {
         try
         {
-            var addr = new System.Net.Mail.MailAddress(email);
+            var addr = new MailAddress(email);
             return addr.Address == email;
         }
         catch
@@ -236,11 +248,9 @@ public sealed class User : IdentityUser<Guid>
         return userName.All(c => char.IsLetterOrDigit(c) || c == '_' || c == '-' || c == '.');
     }
 
-    private static bool IsValidPhoneNumber(string phoneNumber)
+    private static bool IsValidPhoneNumber(string? phoneNumber)
     {
-        // Simple phone number validation - you might want to use a more sophisticated library
-        return !string.IsNullOrWhiteSpace(phoneNumber) && 
-               phoneNumber.All(c => char.IsDigit(c) || c == '+' || c == '-' || c == ' ' || c == '(' || c == ')');
+        return string.IsNullOrWhiteSpace(phoneNumber) ||  Regex.IsMatch(phoneNumber ?? string.Empty, @"^\+\d{10,15}$");
     }
 
     private static string GenerateUserNameFromEmail(string email)

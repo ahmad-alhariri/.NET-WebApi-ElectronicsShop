@@ -1,4 +1,4 @@
-namespace ElectronicsShop.Application.Common.Settings;
+namespace ElectronicsShop.Domain.Settings;
 
 public class CurrencySettings
 {

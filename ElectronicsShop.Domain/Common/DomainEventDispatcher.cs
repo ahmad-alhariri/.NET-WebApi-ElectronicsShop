@@ -12,12 +12,11 @@ public class DomainEventDispatcher : IDomainEventDispatcher
         _mediator = mediator;
     }
 
-    public async Task DispatchAndClearEvents(IEnumerable<BaseEntity> entitiesWithEvents)
+    public async Task DispatchAndClearEvents(IEnumerable<IHasDomainEvents> entitiesWithEvents)
     {
         foreach (var entity in entitiesWithEvents)
         {
             var events = entity.DomainEvents.ToArray();
-
             entity.ClearDomainEvents();
 
             foreach (var domainEvent in events)

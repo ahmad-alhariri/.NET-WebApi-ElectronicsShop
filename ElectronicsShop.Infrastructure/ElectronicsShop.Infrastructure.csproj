@@ -12,8 +12,10 @@
 
     <ItemGroup>
       <PackageReference Include="ClosedXML" Version="0.105.0" />
-      <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.3.0" />
-      <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+      <PackageReference Include="MailKit" Version="4.13.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" />
+      
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0-preview.6.24327.7" />
     </ItemGroup>
 
 </Project>
