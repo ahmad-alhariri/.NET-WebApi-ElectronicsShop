@@ -23,6 +23,7 @@ public static class DependencyInjection
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IBulkProductService, BulkProductService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<ITokenService, TokenService>();
 
         return services;
     }

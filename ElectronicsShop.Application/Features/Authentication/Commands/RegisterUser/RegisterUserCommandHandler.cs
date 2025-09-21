@@ -1,12 +1,12 @@
 using ElectronicsShop.Application.Common.Models;
-using ElectronicsShop.Application.Features.Authentication.Dtos;
+
 using ElectronicsShop.Application.Interfaces.Repositories;
 using ElectronicsShop.Domain.Users;
 using ElectronicsShop.Domain.Users.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
-namespace ElectronicsShop.Application.Features.Authentication.Commands;
+namespace ElectronicsShop.Application.Features.Authentication.Commands.RegisterUser;
 
 public class RegisterUserCommandHandler:ResponseHandler, IRequestHandler<RegisterUserCommand, GenericResponse<Guid>>
 {
