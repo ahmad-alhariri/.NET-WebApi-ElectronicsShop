@@ -22,4 +22,8 @@ public class RefreshTokenRepository:GenericRepository<RefreshToken>, IRefreshTok
                          rt.ExpiresOnUtc > DateTimeOffset.UtcNow) 
             .ToListAsync();
     }
+    public async Task<RefreshToken?> GetByTokenStringForUserAsync(string tokenString, Guid userId)
+    {
+        return await _refreshTokens.FirstOrDefaultAsync(rt => rt.Token == tokenString && rt.UserId == userId);
+    }
 }

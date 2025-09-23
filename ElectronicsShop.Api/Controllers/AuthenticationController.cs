@@ -1,6 +1,7 @@
 using ElectronicsShop.Api.BaseController;
 using ElectronicsShop.Api.Extensions;
 using ElectronicsShop.Api.MetaData;
+using ElectronicsShop.Application.Features.Authentication.Commands.RefreshExpiredToken;
 using ElectronicsShop.Application.Features.Authentication.Commands.RegisterUser;
 using ElectronicsShop.Application.Features.Authentication.Commands.SigninUser;
 using ElectronicsShop.Application.Features.Authentication.Queries;
@@ -39,6 +40,31 @@ public class AuthenticationController : AppControllerBase
             Expires = result.Data.RefreshTokenDto.ExpireAt
         };
         Response.Cookies.Append("refreshToken", result.Data.RefreshTokenDto.TokenString, cookieOptions);
+        return result.ToActionResult();
+    }
+    
+    [HttpPost(ApiRoutes.Auth.RefreshToken)]
+    public async Task<IActionResult> RefreshToken([FromBody] string expiredAccessToken)
+    {
+        // 1. Get the refresh token from the secure cookie
+        var refreshToken = Request.Cookies["refreshToken"];
+        if (string.IsNullOrEmpty(refreshToken))
+        {
+            return Unauthorized(new { message = "Invalid token." });
+        }
+        var command = new RefreshTokenCommand(expiredAccessToken, refreshToken);
+        var result = await Mediator.Send(command);
+        
+        // --- Set the new Refresh Token in a Secure Cookie ---
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true, // Prevents client-side script access
+            Secure = true,   // Ensures cookie is sent over HTTPS
+            SameSite = SameSiteMode.Strict, // Mitigates CSRF attacks
+            Expires = result.Data.RefreshTokenDto.ExpireAt
+        };
+        Response.Cookies.Append("refreshToken", result.Data.RefreshTokenDto.TokenString, cookieOptions);
+        
         return result.ToActionResult();
     }
 }
