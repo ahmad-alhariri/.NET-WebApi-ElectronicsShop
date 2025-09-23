@@ -87,11 +87,9 @@ public static class ApiRoutes
         public const string SignIn = Base + Resource + "/signin";
         public const string Logout = Base + Resource + "/logout";
         public const string RefreshToken = Base + Resource + "/refresh-token";
-        public const string ValidateToken = Base + Resource + "/validate-token";
         public const string ConfirmEmail = Base + Resource + "/confirm-email";
-        public const string ResendConfirmEmail = Base + Resource + "/resend-confirm-email";
-        public const string SendResetPasswordCode = Base + Resource + "/reset-password/code";
-        public const string ConfirmResetPassword = Base + Resource + "/reset-password/confirm";
+        public const string ChangePassword = Base + Resource + "/change-password";
+        public const string ForgotPassword = Base + Resource + "/forgot-password";
         public const string ResetPassword = Base + Resource + "/reset-password";
     }
 

@@ -1,3 +1,5 @@
+using ElectronicsShop.Api.Services;
+using ElectronicsShop.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -11,6 +13,7 @@ public static class DependencyInjection
         
         services.AddHttpContextAccessor();
         services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
         // services.AddTransient<IUrlHelper>(x =>
         // {
         //     var factory = x.GetRequiredService<IUrlHelperFactory>();

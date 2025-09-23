@@ -1,11 +1,13 @@
 using ElectronicsShop.Api.BaseController;
 using ElectronicsShop.Api.Extensions;
 using ElectronicsShop.Api.MetaData;
+using ElectronicsShop.Application.Features.Authentication.Commands.ChangeUserPassword;
 using ElectronicsShop.Application.Features.Authentication.Commands.LogoutUser;
 using ElectronicsShop.Application.Features.Authentication.Commands.RefreshExpiredToken;
 using ElectronicsShop.Application.Features.Authentication.Commands.RegisterUser;
 using ElectronicsShop.Application.Features.Authentication.Commands.SigninUser;
 using ElectronicsShop.Application.Features.Authentication.Queries;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ElectronicsShop.Api.Controllers;
@@ -84,6 +86,30 @@ public class AuthenticationController : AppControllerBase
         
         Response.Cookies.Delete("refreshToken");
 
+        return result.ToActionResult();
+    }
+    
+    [Authorize]
+    [HttpPost(ApiRoutes.Auth.ChangePassword)]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand command)
+    {
+        var result = await Mediator.Send(command);
+        return result.ToActionResult();
+    }
+
+    [HttpPost(ApiRoutes.Auth.ForgotPassword)]
+    [AllowAnonymous] // This endpoint must be accessible to logged-out users
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command)
+    {
+        var result = await Mediator.Send(command);
+        return result.ToActionResult();
+    }
+    
+    [HttpPost(ApiRoutes.Auth.ResetPassword)]
+    [AllowAnonymous]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand command)
+    {
+        var result = await Mediator.Send(command);
         return result.ToActionResult();
     }
 }
