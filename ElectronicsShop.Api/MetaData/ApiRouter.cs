@@ -85,6 +85,7 @@ public static class ApiRoutes
         private const string Resource = "/auth";
         public const string Register = Base + Resource + "/register";
         public const string SignIn = Base + Resource + "/signin";
+        public const string Logout = Base + Resource + "/logout";
         public const string RefreshToken = Base + Resource + "/refresh-token";
         public const string ValidateToken = Base + Resource + "/validate-token";
         public const string ConfirmEmail = Base + Resource + "/confirm-email";

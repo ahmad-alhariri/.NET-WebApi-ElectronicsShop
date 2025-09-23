@@ -1,6 +1,7 @@
 using ElectronicsShop.Api.BaseController;
 using ElectronicsShop.Api.Extensions;
 using ElectronicsShop.Api.MetaData;
+using ElectronicsShop.Application.Features.Authentication.Commands.LogoutUser;
 using ElectronicsShop.Application.Features.Authentication.Commands.RefreshExpiredToken;
 using ElectronicsShop.Application.Features.Authentication.Commands.RegisterUser;
 using ElectronicsShop.Application.Features.Authentication.Commands.SigninUser;
@@ -65,6 +66,24 @@ public class AuthenticationController : AppControllerBase
         };
         Response.Cookies.Append("refreshToken", result.Data.RefreshTokenDto.TokenString, cookieOptions);
         
+        return result.ToActionResult();
+    }
+
+    [HttpPost(ApiRoutes.Auth.Logout)]
+    public async Task<IActionResult> LogoutUser()
+    {
+
+        var refreshToken = Request.Cookies["refreshToken"];
+        if (string.IsNullOrEmpty(refreshToken))
+        {
+            return BadRequest("No refresh token found.");
+        }
+        
+        var command = new LogoutUserCommand(refreshToken);
+        var result = await Mediator.Send(command);
+        
+        Response.Cookies.Delete("refreshToken");
+
         return result.ToActionResult();
     }
 }

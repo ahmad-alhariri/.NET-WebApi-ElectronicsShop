@@ -26,4 +26,9 @@ public class RefreshTokenRepository:GenericRepository<RefreshToken>, IRefreshTok
     {
         return await _refreshTokens.FirstOrDefaultAsync(rt => rt.Token == tokenString && rt.UserId == userId);
     }
+
+    public async Task<RefreshToken?> GetByTokenStringAsync(string tokenString)
+    {
+        return await _refreshTokens.FirstOrDefaultAsync(rt => rt.Token == tokenString);
+    }
 }
