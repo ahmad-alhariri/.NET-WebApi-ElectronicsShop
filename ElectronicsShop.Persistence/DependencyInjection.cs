@@ -88,6 +88,7 @@ public static class DependencyInjection
             .AddScoped<ICategoryRepository,CategoryRepository>()
             .AddScoped<IProductRepository,ProductRepository>()
             .AddScoped<IDomainEventDispatcher, DomainEventDispatcher>()
-            .AddScoped<IRefreshTokenRepository,RefreshTokenRepository>();
+            .AddScoped<IRefreshTokenRepository,RefreshTokenRepository>()
+            .AddScoped<IUserRepository,UserRepository>();
     }
 }

@@ -72,7 +72,8 @@ public static class ApiRoutes
     {
         private const string Resource = "/users";
         public const string GetAll = Base + Resource;
-        public const string GetById = Base + Resource + "/{email}";
+        public const string GetById = Base + Resource + "/{id}";
+        public const string GetByEmail = Base + Resource + "/{email}";
         public const string Create = Base + Resource;
         public const string Update = Base + Resource;
         public const string Delete = Base + Resource + "/{id}";
