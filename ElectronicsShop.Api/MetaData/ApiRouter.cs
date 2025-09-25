@@ -74,11 +74,13 @@ public static class ApiRoutes
         public const string GetAll = Base + Resource;
         public const string GetById = Base + Resource + "/{id}";
         public const string GetByEmail = Base + Resource + "/{email}";
+        public const string Lock = Base + Resource + "/{id}/lock";
+        public const string Unlock = Base + Resource + "/{id}/unlock";
         public const string Create = Base + Resource;
         public const string Update = Base + Resource;
         public const string Delete = Base + Resource + "/{id}";
         public const string ChangePassword = Base + Resource + "/{id}/change-password";
-        public const string Paginated = Base + Resource + "/paginated";
+
     }
 
     public static class Auth
