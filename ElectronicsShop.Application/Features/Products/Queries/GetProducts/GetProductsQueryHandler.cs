@@ -89,17 +89,17 @@ public class GetProductsQueryHandler:ResponseHandler, IRequestHandler<GetProduct
         
         productsQuery = request.SortColumn.ToLower() switch
         {
-            "createdat" => isDescending ? productsQuery.OrderByDescending(wo => wo.CreatedDate) : productsQuery.OrderBy(wo => wo.CreatedDate),
-            "name" => isDescending ? productsQuery.OrderByDescending(wo => wo.Name) : productsQuery.OrderBy(wo => wo.Name),
-            "sku" =>  isDescending ? productsQuery.OrderByDescending(wo => wo.Sku) : productsQuery.OrderBy(wo => wo.Sku),
-            "price" =>  isDescending ? productsQuery.OrderByDescending(wo => wo.Price.Amount) : productsQuery.OrderBy(wo => wo.Price.Amount),
+            "createdat" => isDescending ? productsQuery.OrderByDescending(p => p.CreatedDate) : productsQuery.OrderBy(p => p.CreatedDate),
+            "name" => isDescending ? productsQuery.OrderByDescending(p => p.Name) : productsQuery.OrderBy(p => p.Name),
+            "sku" =>  isDescending ? productsQuery.OrderByDescending(p => p.Sku) : productsQuery.OrderBy(p => p.Sku),
+            "price" =>  isDescending ? productsQuery.OrderByDescending(p => p.Price.Amount) : productsQuery.OrderBy(p => p.Price.Amount),
             _ => productsQuery.OrderByDescending(wo => wo.CreatedDate) // Default sorting
         };
         
         var pagedProducts = await productsQuery.ToPagedListAsync(request.PageNumber, request.PageSize, cancellationToken);
 
-        var brandResponses = _mapper.Map<List<ProductListResponse>>(pagedProducts.Items);
+        var productsResponses = _mapper.Map<List<ProductListResponse>>(pagedProducts.Items);
         
-        return Paginated(brandResponses, pagedProducts.TotalCount, pagedProducts.PageNumber, pagedProducts.PageSize, "Brands retrieved successfully");
+        return Paginated(productsResponses, pagedProducts.TotalCount, pagedProducts.PageNumber, pagedProducts.PageSize, "Products retrieved successfully");
     }
 }

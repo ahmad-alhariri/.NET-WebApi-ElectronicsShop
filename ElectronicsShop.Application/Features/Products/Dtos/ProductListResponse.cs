@@ -18,7 +18,7 @@ public sealed class ProductListResponse
     public bool IsActive { get; init; }
     
     public bool IsFeatured { get; init; }
-    public bool IsInStock => StockQuantity > 0;
+    public bool IsInStock { get; init; }
     public bool IsNew { get; init; }
     
     public string ImageUrl { get; init; }

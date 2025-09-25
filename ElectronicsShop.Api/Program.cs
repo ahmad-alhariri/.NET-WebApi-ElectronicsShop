@@ -1,19 +1,18 @@
 using ElectronicsShop.Api;
 using ElectronicsShop.Application;
 using ElectronicsShop.Application.Middlewares;
-using ElectronicsShop.Domain;
 using ElectronicsShop.Infrastructure;
 using ElectronicsShop.Persistence;
+using ElectronicsShop.Persistence.DataSeeding;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services
-    .AddPresentation(builder.Configuration)
-    .AddDomain()
+    .AddPresentation()
     .AddApplication()
-    .AddInfrastructure()
+    .AddInfrastructure(builder.Configuration)
     .AddPersistence(builder.Configuration);
     
 
@@ -26,6 +25,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    builder.Configuration.AddUserSecrets<Program>();
+    
     app.MapOpenApi();
 
     app.UseSwaggerUI(options =>
@@ -43,6 +44,17 @@ else
 {
     app.UseHsts();
 }
+
+
+#region DataSeeding
+
+using (var scope = app.Services.CreateScope())
+{
+    await RoleSeeder.SeedAsync(scope.ServiceProvider);
+    await AdminSeeder.SeedAsync(scope.ServiceProvider);
+}
+
+#endregion
 
 app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseHttpsRedirection();

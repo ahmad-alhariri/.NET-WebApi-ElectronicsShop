@@ -1,15 +1,25 @@
-
-
-using ElectronicsShop.Application.Common.Settings;
+using ElectronicsShop.Api.Services;
+using ElectronicsShop.Application.Interfaces.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace ElectronicsShop.Api;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddPresentation(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddPresentation(this IServiceCollection services)
     {
-        services.Configure<CurrencySettings>(configuration.GetSection("CurrencySettings"));
-
+        
+        services.AddHttpContextAccessor();
+        services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        // services.AddTransient<IUrlHelper>(x =>
+        // {
+        //     var factory = x.GetRequiredService<IUrlHelperFactory>();
+        //     var actionContext = x.GetRequiredService<IActionContextAccessor>().ActionContext;
+        //     return factory.GetUrlHelper(actionContext);
+        // });
         return services;
     }
 

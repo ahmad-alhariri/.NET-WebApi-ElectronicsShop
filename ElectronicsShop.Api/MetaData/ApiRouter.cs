@@ -72,12 +72,15 @@ public static class ApiRoutes
     {
         private const string Resource = "/users";
         public const string GetAll = Base + Resource;
-        public const string GetById = Base + Resource + "/{email}";
+        public const string GetById = Base + Resource + "/{id}";
+        public const string GetByEmail = Base + Resource + "/{email}";
+        public const string Lock = Base + Resource + "/{id}/lock";
+        public const string Unlock = Base + Resource + "/{id}/unlock";
         public const string Create = Base + Resource;
         public const string Update = Base + Resource;
         public const string Delete = Base + Resource + "/{id}";
         public const string ChangePassword = Base + Resource + "/{id}/change-password";
-        public const string Paginated = Base + Resource + "/paginated";
+
     }
 
     public static class Auth
@@ -85,12 +88,11 @@ public static class ApiRoutes
         private const string Resource = "/auth";
         public const string Register = Base + Resource + "/register";
         public const string SignIn = Base + Resource + "/signin";
+        public const string Logout = Base + Resource + "/logout";
         public const string RefreshToken = Base + Resource + "/refresh-token";
-        public const string ValidateToken = Base + Resource + "/validate-token";
         public const string ConfirmEmail = Base + Resource + "/confirm-email";
-        public const string ResendConfirmEmail = Base + Resource + "/resend-confirm-email";
-        public const string SendResetPasswordCode = Base + Resource + "/reset-password/code";
-        public const string ConfirmResetPassword = Base + Resource + "/reset-password/confirm";
+        public const string ChangePassword = Base + Resource + "/change-password";
+        public const string ForgotPassword = Base + Resource + "/forgot-password";
         public const string ResetPassword = Base + Resource + "/reset-password";
     }
 

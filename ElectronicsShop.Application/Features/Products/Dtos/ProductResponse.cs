@@ -22,7 +22,7 @@ public sealed class ProductResponse
     public bool IsActive { get; init; }
     
     public bool IsFeatured { get; init; }
-    public bool IsInStock => StockQuantity > 0;
+    public bool IsInStock { get; init; }
     public bool IsNew { get; init; }
     
     public List<SpecificationDto> Specifications { get; set; } = new();

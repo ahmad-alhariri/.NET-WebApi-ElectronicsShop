@@ -1,7 +1,6 @@
 using ElectronicsShop.Application.Common.Models;
-using ElectronicsShop.Application.Common.Settings;
+using ElectronicsShop.Domain.Settings;
 using ElectronicsShop.Application.Interfaces.Repositories;
-using ElectronicsShop.Domain.Common.Results;
 using ElectronicsShop.Domain.Common.ValueObjects;
 using MediatR;
 using Microsoft.Extensions.Options;

@@ -5,13 +5,25 @@ using ElectronicsShop.Domain.Common.Interfaces;
 using ElectronicsShop.Domain.Products;
 using ElectronicsShop.Domain.Products.Brands;
 using ElectronicsShop.Domain.Products.Categories;
+using ElectronicsShop.Domain.Users;
+using ElectronicsShop.Domain.Users.Address;
+using ElectronicsShop.Domain.Users.Identity;
 using ElectronicsShop.Persistence.Interceptors;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace ElectronicsShop.Persistence.DataContext;
 
 
-public class ApplicationDbContext : DbContext, IApplicationDbContext
+public class ApplicationDbContext : 
+    IdentityDbContext<User, Role, Guid,
+        IdentityUserClaim<Guid>,
+        IdentityUserRole<Guid>,
+        IdentityUserLogin<Guid>,
+        IdentityRoleClaim<Guid>,
+        IdentityUserToken<Guid>>,
+    IApplicationDbContext
 {
     private readonly IDomainEventDispatcher _dispatcher;
     
@@ -28,6 +40,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Brand> Brands => Set<Brand>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductImage> ProductImages => Set<ProductImage>();
+    public DbSet<UserAddress> UserAddresses => Set<UserAddress>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -47,10 +61,11 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
          
         if (_dispatcher == null) return result;
  
-        var entitiesWithEvents = ChangeTracker.Entries<BaseEntity>()
+        var entitiesWithEvents = ChangeTracker.Entries<IHasDomainEvents>()
             .Select(e => e.Entity)
             .Where(e => e.DomainEvents.Any())
             .ToArray();
+
  
         // After a successful save, dispatch domain events.
         await _dispatcher.DispatchAndClearEvents(entitiesWithEvents);
