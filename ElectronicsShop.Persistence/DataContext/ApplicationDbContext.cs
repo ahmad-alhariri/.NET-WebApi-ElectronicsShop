@@ -1,5 +1,6 @@
 using System.Reflection;
 using ElectronicsShop.Application.Interfaces;
+using ElectronicsShop.Domain.Carts;
 using ElectronicsShop.Domain.Common;
 using ElectronicsShop.Domain.Common.Interfaces;
 using ElectronicsShop.Domain.Products;
@@ -42,6 +43,9 @@ public class ApplicationDbContext :
     public DbSet<ProductImage> ProductImages => Set<ProductImage>();
     public DbSet<UserAddress> UserAddresses => Set<UserAddress>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    
+    public DbSet<Cart> Carts => Set<Cart>();
+    public DbSet<CartItem> CartItems => Set<CartItem>();
     
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
