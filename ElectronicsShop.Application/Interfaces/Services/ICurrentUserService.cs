@@ -22,4 +22,8 @@ public interface ICurrentUserService
     /// Gets the roles of the currently authenticated user.
     /// </summary>
     IEnumerable<string> Roles { get; }
+    
+    Task<(Guid? userId, Guid? anonymousId)> GetIdentifiers();
+
+    void AppendAnonymousId(Guid? anonymousId);
 }
