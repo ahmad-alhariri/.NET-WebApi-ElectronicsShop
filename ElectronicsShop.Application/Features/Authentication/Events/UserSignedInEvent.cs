@@ -1,5 +1,5 @@
 using MediatR;
-using System;
+
 
 namespace ElectronicsShop.Application.Features.Authentication.Events
 {

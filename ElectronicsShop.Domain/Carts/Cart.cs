@@ -1,4 +1,3 @@
-using ElectronicsShop.Domain.Common;
 using ElectronicsShop.Domain.Common.Results;
 using ElectronicsShop.Domain.Common.ValueObjects;
 using ElectronicsShop.Domain.Products;
@@ -15,11 +14,10 @@ public sealed class Cart
     private readonly List<CartItem> _items = new();
     public IReadOnlyCollection<CartItem> Items => _items.AsReadOnly();
 
-    public Money Subtotal => new(_items.Sum(i => i.TotalPrice.Amount), "USD");
+    public Money Subtotal => new(_items.Sum(i => i.TotalPrice.Amount));
     public int TotalItems => _items.Sum(i => i.Quantity);
     public bool IsEmpty => !_items.Any();
-
-  // Private constructor for EF Core
+    
     private Cart() { }
 
     private Cart(Guid? userId)
@@ -60,27 +58,26 @@ public sealed class Cart
         return Result.Success;
     }
     
-    public Result<Success> UpdateItemQuantity(int productId, int newQuantity, int stockAvailable)
+    public Result<Success> UpdateItemQuantity(Product product, int newQuantity)
     {
-        var item = _items.FirstOrDefault(i => i.ProductId == productId);
+        var item = _items.FirstOrDefault(i => i.ProductId == product.Id);
         if (item is null) return CartErrors.ItemNotFound;
 
-        if (newQuantity < 0) return CartErrors.QuantityMustBePositive;
-
-        if (newQuantity > stockAvailable)
+        if (newQuantity >= 0)
         {
-            return CartErrors.InsufficientStock;
-        }
-
-        if (newQuantity == 0)
-        {
-            _items.Remove(item);
+            if (newQuantity == 0)
+            {
+                _items.Remove(item);
+            }
+            else
+            {
+                item.SetQuantity(newQuantity);
+            }
         }
         else
         {
-            item.SetQuantity(newQuantity);
+            return CartErrors.QuantityMustBePositive;
         }
-
 
         return Result.Success;
     }

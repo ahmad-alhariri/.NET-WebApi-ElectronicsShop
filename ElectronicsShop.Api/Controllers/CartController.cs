@@ -17,4 +17,12 @@ public class CartController: AppControllerBase
         var result = await Mediator.Send(command);
         return result.ToActionResult();
     }
+    
+    [HttpPut(ApiRoutes.Cart.UpdateItem)]
+    [AllowAnonymous]
+    public async Task<IActionResult> UpdateCartItem([FromBody] UpdateCartItemCommand command)
+    {
+        var result = await Mediator.Send(command);
+        return result.ToActionResult();
+    }
 }
