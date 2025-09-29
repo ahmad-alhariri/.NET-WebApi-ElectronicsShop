@@ -2,78 +2,95 @@ using ElectronicsShop.Application.Common.Models;
 using ElectronicsShop.Application.Interfaces.Repositories;
 using ElectronicsShop.Application.Interfaces.Services;
 using ElectronicsShop.Domain.Carts;
+using ElectronicsShop.Domain.Common.Results;
+using ElectronicsShop.Domain.Products;
 using MediatR;
 
 namespace ElectronicsShop.Application.Features.Carts.Commands;
 
-public class AddItemToCartCommandHandler:ResponseHandler, IRequestHandler<AddItemToCartCommand,GenericResponse<Unit>>
+public class AddItemToCartCommandHandler : ResponseHandler, IRequestHandler<AddItemToCartCommand, GenericResponse<Unit>>
 {
     private readonly IProductRepository _productRepository;
     private readonly ICartRepository _cartRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUserService;
 
-    public AddItemToCartCommandHandler(IProductRepository productRepository,ICartRepository cartRepository, IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
+    public AddItemToCartCommandHandler(IProductRepository productRepository, ICartRepository cartRepository, 
+        IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
     {
         _productRepository = productRepository;
         _cartRepository = cartRepository;
         _unitOfWork = unitOfWork;
         _currentUserService = currentUserService;
     }
-    
+
     public async Task<GenericResponse<Unit>> Handle(AddItemToCartCommand request, CancellationToken cancellationToken)
     {
-        var (userId, anonymousId) = await _currentUserService.GetIdentifiers();
-        
         // 1. Validate the product exists and has sufficient stock
-        var product = await _productRepository.GetByIdAsync(request.ProductId);
-        if (product == null)
-        {
-            return NotFound<Unit>("Product not found.");
-        }
-        if (request.Quantity > product.StockQuantity)
-        {
-            return Conflict<Unit>(
-                $"Insufficient stock for '{product.Name}'. Only {product.StockQuantity} units available.");
-        }
+        var validationResult = await ValidateProductAsync(request.ProductId, request.Quantity, cancellationToken);
+        if (validationResult.IsError)
+            return BadRequest<Unit>(validationResult.Errors.First().Description);
         
-        Cart? cart;
-        
-        // A. Handle registered user
+        var product = validationResult.Value;
+
+        // 2. Get or create the appropriate cart
+        var cartResult = await ResolveCartAsync(cancellationToken);
+        if (cartResult.IsError)
+            return Conflict<Unit>(cartResult.Errors.First().Description);
+
+        var cart = cartResult.Value;
+
+        // 3. Add item to cart
+        var addItemResult = cart.AddItem(product, request.Quantity);
+        if (addItemResult.IsError)
+            return Conflict<Unit>(addItemResult.Errors.First().Description);
+
+        // 4. Save changes
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        return Success(Unit.Value, "Item added to cart successfully");
+    }
+
+    private async Task<Result<Cart>> ResolveCartAsync(CancellationToken cancellationToken)
+    {
+        var (userId, anonymousId) = await _currentUserService.GetIdentifiers();
+
+        // For authenticated users, use or create their cart
         if (userId.HasValue)
         {
-            cart = await _cartRepository.GetCartByUserIdAsync(userId.Value,cancellationToken);
+            var cart = await _cartRepository.GetCartByUserIdAsync(userId.Value, cancellationToken);
             if (cart == null)
             {
                 cart = Cart.Create(userId.Value);
-                await _cartRepository.AddAsync(cart,cancellationToken);
+                await _cartRepository.AddAsync(cart, cancellationToken);
             }
-            
+            return cart;
         }
-        // B. Handle anonymous user with existing cart
-        else 
+
+        // For anonymous users, use existing or create new cart
+        if (anonymousId.HasValue)
         {
-            cart = await _cartRepository.GetCartByAnonymousIdAsync(anonymousId.Value, cancellationToken);
-            if (cart is null)
-            {
-                cart = Cart.Create(null);
-                await _cartRepository.AddAsync(cart,cancellationToken);
-                anonymousId = cart.Id;
-                _currentUserService.AppendAnonymousId(anonymousId);
-            }
-        }
-        
-        var result = cart.AddItem(product, request.Quantity);
-
-        if (result.IsError)
-        {
-            return Conflict<Unit>(result.Errors.First().Description);
+            var cart = await _cartRepository.GetCartByAnonymousIdAsync(anonymousId.Value, cancellationToken);
+            if (cart != null)
+                return cart;
         }
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        // Create new anonymous cart
+        var newCart = Cart.Create(null);
+        await _cartRepository.AddAsync(newCart, cancellationToken);
+        _currentUserService.AppendAnonymousId(newCart.Id);
+        return newCart;
+    }
 
-        return Success(Unit.Value, "Item added to cart successfully");
+    private async Task<Result<Product>> ValidateProductAsync(int productId, int quantity, CancellationToken cancellationToken)
+    {
+        var product = await _productRepository.GetByIdAsync(productId);
+        if (product == null)
+            return Error.NotFound("","Product not found.");
 
+        if (quantity > product.StockQuantity)
+            return Error.Validation("",
+                $"Insufficient stock for '{product.Name}'. Only {product.StockQuantity} units available.");
 
+        return product;
     }
 }
