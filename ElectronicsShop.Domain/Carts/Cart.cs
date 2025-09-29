@@ -85,21 +85,40 @@ public sealed class Cart
         return Result.Success;
     }
 
-    public void MergeWith(Cart guestCart)
+    public Result<Updated> AssignToUser(Guid userId)
     {
-        foreach (var guestItem in guestCart.Items)
+        if (UserId.HasValue)
+            return CartErrors.ItemNotFound;
+            
+        UserId = userId;
+        UpdatedDate = DateTime.UtcNow;
+        return Result.Updated;
+    }
+    public void MergeWithAddItem(Product product, int quantity)
+    {
+        var existingItem = _items.FirstOrDefault(i => i.ProductId == product.Id);
+        
+        if (existingItem is not null)
         {
-            // This assumes product/stock checks will be done in the orchestrating service
-            var userItem = _items.FirstOrDefault(i => i.ProductId == guestItem.ProductId);
-            if (userItem != null)
+            var totalQuantityRequired = existingItem.Quantity + quantity;
+                
+            // Validate stock availability
+            if (totalQuantityRequired <= product.StockQuantity)
             {
-                userItem.IncreaseQuantity(guestItem.Quantity);
+                existingItem.IncreaseQuantity(quantity);
             }
             else
             {
-                _items.Add(guestItem);
+                existingItem.SetQuantity(product.StockQuantity);
             }
+            
         }
+        else
+        {
+            var newItemResult = CartItem.Create(product.Id, quantity, product.Price);
+            _items.Add(newItemResult.Value);
+        }
+        
 
     }
 

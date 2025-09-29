@@ -1,5 +1,6 @@
 using ElectronicsShop.Application.Common.Models;
 using ElectronicsShop.Application.Features.Authentication.Dtos;
+using ElectronicsShop.Application.Features.Authentication.Events;
 using ElectronicsShop.Application.Interfaces.Repositories;
 using ElectronicsShop.Application.Interfaces.Services;
 using ElectronicsShop.Domain.Users;
@@ -13,12 +14,16 @@ public class SigninUserCommandHandler:ResponseHandler, IRequestHandler<SigninUse
     private readonly UserManager<User> _userManager;
     private readonly ITokenService _tokenService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUserService;
 
-    public SigninUserCommandHandler(UserManager<User> userManager, ITokenService tokenService, IUnitOfWork unitOfWork)
+    public SigninUserCommandHandler(UserManager<User> userManager, ITokenService tokenService, IUnitOfWork unitOfWork, IMediator mediator, ICurrentUserService currentUserService)
     {
         _userManager = userManager;
         _tokenService = tokenService;
         _unitOfWork = unitOfWork;
+        _mediator = mediator;
+        _currentUserService = currentUserService;
     }
     
     public async Task<GenericResponse<TokenResponse>> Handle(SigninUserCommand request, CancellationToken cancellationToken)
@@ -60,8 +65,14 @@ public class SigninUserCommandHandler:ResponseHandler, IRequestHandler<SigninUse
         // 5. Record the login activity
         user.RecordLogin();
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
-        // 6. Return the successful token response
+
+        // 6. Publish UserSignedInEvent for cart migration
+        var anonymousId = _currentUserService.AnonymousId;
+        if (anonymousId.HasValue)
+        {
+            await _mediator.Publish(new UserSignedInEvent(user.Id, anonymousId.Value), cancellationToken);
+        }
+        // 7. Return the successful token response
         return Success(tokenResult.Value,"Login successful.");
     }
 }

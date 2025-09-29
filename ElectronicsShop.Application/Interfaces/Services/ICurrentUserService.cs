@@ -9,6 +9,12 @@ public interface ICurrentUserService
     Guid? UserId { get; }
     
     /// <summary>
+    /// Gets the unique ID of the anonymous user (guest).
+    /// Returns null if there is no anonymous user ID.
+    /// </summary>
+    Guid? AnonymousId { get; }
+    
+    /// <summary>
     /// Gets the email of the currently authenticated user.
     /// </summary>
     string? UserEmail { get; }
@@ -26,4 +32,5 @@ public interface ICurrentUserService
     Task<(Guid? userId, Guid? anonymousId)> GetIdentifiers();
 
     void AppendAnonymousId(Guid? anonymousId);
+    void RemoveAnonymousId();
 }

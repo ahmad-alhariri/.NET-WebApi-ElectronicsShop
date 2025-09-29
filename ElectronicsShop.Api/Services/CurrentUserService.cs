@@ -22,6 +22,19 @@ public class CurrentUserService:ICurrentUserService
         }
     }
 
+    public Guid? AnonymousId
+    {
+        get
+        {
+            if (_httpContextAccessor.HttpContext?.Request.Cookies.TryGetValue("guestCartId", out var cartIdFromCookie) == true &&
+                Guid.TryParse(cartIdFromCookie, out var anonymousId))
+            {
+                return anonymousId;
+            }
+            return null;
+        }
+    }
+
     public string? UserEmail => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Email);
 
     public bool IsAuthenticated => _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
@@ -60,5 +73,10 @@ public class CurrentUserService:ICurrentUserService
             Expires = DateTime.UtcNow.AddDays(14)
         };
         _httpContextAccessor.HttpContext?.Response.Cookies.Append("guestCartId", anonymousId!.ToString(), cookieOptions);
+    }
+
+    public void RemoveAnonymousId()
+    {
+        _httpContextAccessor.HttpContext?.Response.Cookies.Delete("guestCartId");
     }
 }

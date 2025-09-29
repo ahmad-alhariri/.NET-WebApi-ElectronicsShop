@@ -24,6 +24,7 @@ public static class DependencyInjection
         services.AddScoped<IBulkProductService, BulkProductService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<ICartMigrationService, CartMigrationService>();
 
         return services;
     }
