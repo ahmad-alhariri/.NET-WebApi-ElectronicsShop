@@ -26,19 +26,14 @@ public class UpdateCartItemCommandHandler:ResponseHandler, IRequestHandler<Updat
     public async Task<GenericResponse<Unit>> Handle(UpdateCartItemCommand request, CancellationToken cancellationToken)
     {
         // 1. Validate the product exists and has sufficient stock
-        var validationResult = await ValidateProductAsync(request.ProductId, request.Quantity, cancellationToken);
+        var validationResult = await ValidateProductAsync(request.ProductId, request.Quantity);
         if (validationResult.IsError)
             return BadRequest<Unit>(validationResult.Errors.First().Description);
         
         var product = validationResult.Value;
 
         // 2. Get and check the appropriate cart
-        var cartResult = await ResolveCartAsync(cancellationToken);
-        if (cartResult.IsError)
-            return Conflict<Unit>(cartResult.Errors.First().Description);
-
-        var cart = cartResult.Value;
-        
+        var cart = await ResolveCartAsync(cancellationToken);
         if (cart == null)
         {
             return NotFound<Unit>("Cart not found");
@@ -54,7 +49,7 @@ public class UpdateCartItemCommandHandler:ResponseHandler, IRequestHandler<Updat
         return Success(Unit.Value, "Cart Updated successfully");
     }
     
-    private async Task<Result<Product>> ValidateProductAsync(int productId, int quantity, CancellationToken cancellationToken)
+    private async Task<Result<Product>> ValidateProductAsync(int productId, int quantity)
     {
         var product = await _productRepository.GetByIdAsync(productId);
         if (product == null)
@@ -67,7 +62,7 @@ public class UpdateCartItemCommandHandler:ResponseHandler, IRequestHandler<Updat
         return product;
     }
     
-    private async Task<Result<Cart?>> ResolveCartAsync(CancellationToken cancellationToken)
+    private async Task<Cart?> ResolveCartAsync(CancellationToken cancellationToken)
     {
         var (userId, anonymousId) = await _currentUserService.GetIdentifiers();
 

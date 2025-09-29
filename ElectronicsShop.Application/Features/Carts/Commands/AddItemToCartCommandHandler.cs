@@ -27,18 +27,14 @@ public class AddItemToCartCommandHandler : ResponseHandler, IRequestHandler<AddI
     public async Task<GenericResponse<Unit>> Handle(AddItemToCartCommand request, CancellationToken cancellationToken)
     {
         // 1. Validate the product exists and has sufficient stock
-        var validationResult = await ValidateProductAsync(request.ProductId, request.Quantity, cancellationToken);
+        var validationResult = await ValidateProductAsync(request.ProductId, request.Quantity);
         if (validationResult.IsError)
             return BadRequest<Unit>(validationResult.Errors.First().Description);
         
         var product = validationResult.Value;
 
         // 2. Get or create the appropriate cart
-        var cartResult = await ResolveCartAsync(cancellationToken);
-        if (cartResult.IsError)
-            return Conflict<Unit>(cartResult.Errors.First().Description);
-
-        var cart = cartResult.Value;
+        var cart = await ResolveCartAsync(cancellationToken);
 
         // 3. Add item to cart
         var addItemResult = cart.AddItem(product, request.Quantity);
@@ -50,7 +46,7 @@ public class AddItemToCartCommandHandler : ResponseHandler, IRequestHandler<AddI
         return Success(Unit.Value, "Item added to cart successfully");
     }
 
-    private async Task<Result<Cart>> ResolveCartAsync(CancellationToken cancellationToken)
+    private async Task<Cart> ResolveCartAsync(CancellationToken cancellationToken)
     {
         var (userId, anonymousId) = await _currentUserService.GetIdentifiers();
 
@@ -75,13 +71,13 @@ public class AddItemToCartCommandHandler : ResponseHandler, IRequestHandler<AddI
         }
 
         // Create new anonymous cart
-        var newCart = Cart.Create(null);
+        var newCart = Cart.Create();
         await _cartRepository.AddAsync(newCart, cancellationToken);
         _currentUserService.AppendAnonymousId(newCart.Id);
         return newCart;
     }
 
-    private async Task<Result<Product>> ValidateProductAsync(int productId, int quantity, CancellationToken cancellationToken)
+    private async Task<Result<Product>> ValidateProductAsync(int productId, int quantity)
     {
         var product = await _productRepository.GetByIdAsync(productId);
         if (product == null)

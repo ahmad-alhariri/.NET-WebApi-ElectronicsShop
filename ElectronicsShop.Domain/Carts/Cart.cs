@@ -58,6 +58,24 @@ public sealed class Cart
         return Result.Success;
     }
     
+    public Result<Updated> RemoveItem(int productId)
+    {
+        var item = _items.FirstOrDefault(i => i.ProductId == productId);
+        if (item is null) return CartErrors.ItemNotFound;
+
+        _items.Remove(item);
+        UpdatedDate = DateTime.UtcNow;
+        return Result.Updated;
+    }
+    public Result<Deleted> Clear()
+    {
+        if (IsEmpty) return CartErrors.CartIsEmpty;
+
+        _items.Clear();
+        UpdatedDate = DateTime.UtcNow;
+        return Result.Deleted;
+    }
+    
     public Result<Success> UpdateItemQuantity(Product product, int newQuantity)
     {
         var item = _items.FirstOrDefault(i => i.ProductId == product.Id);
@@ -78,7 +96,7 @@ public sealed class Cart
         {
             return CartErrors.QuantityMustBePositive;
         }
-
+        UpdatedDate = DateTime.UtcNow;
         return Result.Success;
     }
 

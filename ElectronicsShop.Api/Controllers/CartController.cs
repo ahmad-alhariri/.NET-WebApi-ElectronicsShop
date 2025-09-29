@@ -25,4 +25,20 @@ public class CartController: AppControllerBase
         var result = await Mediator.Send(command);
         return result.ToActionResult();
     }
+    
+    [HttpDelete(ApiRoutes.Cart.RemoveItem)]
+    [AllowAnonymous]
+    public async Task<IActionResult> UpdateCartItem([FromBody] RemoveCartItemCommand command)
+    {
+        var result = await Mediator.Send(command);
+        return result.ToActionResult();
+    }
+    
+    [HttpDelete(ApiRoutes.Cart.ClearCart)]
+    [AllowAnonymous]
+    public async Task<IActionResult> ClearCart()
+    {
+        var result = await Mediator.Send(new ClearCartCommand());
+        return result.ToActionResult();
+    }
 }
