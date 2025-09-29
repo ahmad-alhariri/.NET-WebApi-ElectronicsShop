@@ -2,6 +2,7 @@ using ElectronicsShop.Api.BaseController;
 using ElectronicsShop.Api.Extensions;
 using ElectronicsShop.Api.MetaData;
 using ElectronicsShop.Application.Features.Carts.Commands;
+using ElectronicsShop.Application.Features.Carts.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +11,14 @@ namespace ElectronicsShop.Api.Controllers;
 [ApiController]
 public class CartController: AppControllerBase
 {
+    [HttpGet(ApiRoutes.Cart.GetCart)]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetCart()
+    {
+        var result = await Mediator.Send(new GetCartQuery());
+        return result.ToActionResult();
+    }
+    
     [HttpPost(ApiRoutes.Cart.AddItem)]
     [AllowAnonymous]
     public async Task<IActionResult> AddToCart([FromBody] AddItemToCartCommand command)
