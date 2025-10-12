@@ -5,6 +5,7 @@ using ElectronicsShop.Application.Features.Brands.Dtos;
 using ElectronicsShop.Application.Features.Categories.Dtos;
 using ElectronicsShop.Application.Interfaces.Repositories;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace ElectronicsShop.Application.Features.Categories.Queries.GetCategories;
 
@@ -21,7 +22,7 @@ public class GetCategoriesQueryHandler:ResponseHandler,IRequestHandler<GetCatego
     
     public async Task<GenericResponse<List<CategoryResponse>>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
     {
-        var query = _categoryRepository.GetAllAsNoTracking().AsQueryable();
+        var query = await _categoryRepository.GetAllWithProducts();
         
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {

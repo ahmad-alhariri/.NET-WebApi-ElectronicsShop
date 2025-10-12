@@ -21,4 +21,9 @@ public class CategoryRepository : GenericRepository<Category>, ICategoryReposito
         return await _categories
             .FirstOrDefaultAsync(c => c.Name == name, cancellationToken);
     }
+
+    public async Task<IQueryable<Category>> GetAllWithProducts()
+    {
+        return  _categories.AsNoTracking().Include(c => c.Products);
+    }
 }

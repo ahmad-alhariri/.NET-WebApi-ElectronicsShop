@@ -26,7 +26,7 @@ public sealed class Cart
         UserId = userId;
     }
 
-       public static Cart Create(Guid? userId = null)
+    public static Cart Create(Guid? userId = null)
     {
         return new Cart(userId);
     }

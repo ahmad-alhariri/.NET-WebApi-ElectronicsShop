@@ -14,7 +14,21 @@ builder.Services
     .AddApplication()
     .AddInfrastructure(builder.Configuration)
     .AddPersistence(builder.Configuration);
-    
+
+
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                     ?? new[] { "http://localhost:3000" };
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -55,7 +69,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 #endregion
-
+app.UseCors("CorsPolicy");
 app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseHttpsRedirection();
 

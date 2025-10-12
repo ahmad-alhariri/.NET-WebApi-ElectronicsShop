@@ -43,6 +43,9 @@ public class ProductRepository: GenericRepository<Product>, IProductRepository
         return await _products
             .AsNoTracking()
             .Where(p => p.IsActive && p.IsFeatured)
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
+            .Include(p => p.Images)
             .OrderByDescending(p => p.Id)
             .ToListAsync(cancellationToken);
     }

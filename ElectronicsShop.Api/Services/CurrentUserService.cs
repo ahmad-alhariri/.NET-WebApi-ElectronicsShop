@@ -69,8 +69,10 @@ public class CurrentUserService:ICurrentUserService
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            Expires = DateTime.UtcNow.AddDays(14)
+            Secure = true, 
+            SameSite = SameSiteMode.None, 
+            Expires = DateTime.UtcNow.AddDays(14),
+            Domain = "localhost"
         };
         _httpContextAccessor.HttpContext?.Response.Cookies.Append("guestCartId", anonymousId!.ToString(), cookieOptions);
     }
